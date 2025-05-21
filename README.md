@@ -1,4 +1,3 @@
-# mlfbac-legaltech
 # LegalTech Project - Dokumentation
 
 ## Inhaltsverzeichnis
