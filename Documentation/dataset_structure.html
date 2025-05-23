@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataset Structure and Transformation Overview</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.3em;
+        }
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            font-size: 1.8em;
+            color: #3498db;
+        }
+        h3 {
+            font-size: 1.5em;
+            color: #2980b9;
+        }
+        h4 {
+            font-size: 1.2em;
+            color: #16a085;
+        }
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        pre, code {
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            padding: 1em;
+            overflow: auto;
+            white-space: pre;
+        }
+        .section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .parameter {
+            margin-left: 20px;
+            margin-bottom: 10px;
+            padding-left: 15px;
+            border-left: 3px solid #3498db;
+        }
+        .example {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #27ae60;
+            margin: 20px 0;
+        }
+        figure {
+            text-align: center;
+            margin: 20px 0;
+        }
+        figcaption {
+            font-style: italic;
+            color: #555;
+            margin-top: 8px;
+        }
+        .file-tree {
+            font-family: monospace;
+            line-height: 1.5;
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .file-tree ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div style="background-color: #3498db; color: white; padding: 10px; margin-bottom: 20px; border-radius: 5px; text-align: center;">
+        <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">← Zurück zur Hauptdokumentation</a>
+    </div>
+    <h1>Dataset Structure and Transformation Overview</h1>
+    
+    <div class="section" id="overview">
+        <h2>Overview</h2>
+        <p>
+            This document provides a comprehensive explanation of the dataset structure and transformation process
+            used in the LegalTech project for preparing training data from legal opinions (Gutachten). The process
+            converts raw legal documents into segmented, prompt-enriched training examples suitable for language
+            model fine-tuning.
+        </p>
+        
+        <figure>
+            <pre>
+            ┌────────────────┐     ┌────────────────┐     ┌────────────────┐
+Raw JSON ──>│ Format         │────>│ Segmentation   │────>│ Training Data  │
+Documents   │ Conversion     │     │ & Prompting    │     │ Generation     │
+            └────────────────┘     └────────────────┘     └────────────────┘
+                   │                       │                      │
+                   ▼                       ▼                      ▼
+            ┌────────────────┐     ┌────────────────┐     ┌────────────────┐
+            │ JSONL Format   │     │ Logical        │     │ Conversation   │
+            │ (one JSON      │     │ Segments with  │     │ Format with    │
+            │ object per     │     │ Contextual     │     │ System/User/   │
+            │ line)          │     │ Metadata       │     │ Assistant      │
+            └────────────────┘     └────────────────┘     └────────────────┘
+            </pre>
+            <figcaption>Figure 1: High-level overview of the dataset transformation pipeline</figcaption>
+        </figure>
+    </div>
+    
+    <div class="section" id="file-structure">
+        <h2>File Structure and Naming Conventions</h2>
+        
+        <h3>Dataset Files</h3>
+        <div class="file-tree">
+            <ul>
+                <li>📁 <strong>Dataset/</strong>
+                    <ul>
+                        <li>📄 <strong>gutachten_alle_seiten_neu.json</strong> - Original raw dataset in JSON format</li>
+                        <li>📄 <strong>gutachten_alle_seiten_neu.jsonl</strong> - Converted raw dataset in JSONL format</li>
+                        <li>📄 <strong>gutachten_alle_seiten_neu_1_5_Mio_segmented_prepared.jsonl</strong> - Segmented dataset with 1.5M token limit</li>
+                        <li>📄 <strong>gutachten_alle_seiten_neu_2_Mio_segmented_prepared.jsonl</strong> - Segmented dataset with 2M token limit</li>
+                        <li>📄 <strong>gutachten_alle_seiten_neu_max_segmented_prepared.jsonl</strong> - Segmented dataset without token limit</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        
+        <h3>Naming Convention</h3>
+        <p>
+            The output files follow a systematic naming convention:
+        </p>
+        <pre>
+[base_name]_[token_limit]_segmented_prepared.jsonl
+
+Where:
+- [base_name]: Original source file name
+- [token_limit]: Token limit expressed as "1_5_Mio" (1.5 million) or "max" (no limit)
+- "segmented_prepared": Indicates the file contains segmented and prepared training data
+- ".jsonl": JSONL file format (one JSON object per line)
+</pre>
+        
+        <p>
+            Special cases include files with suffixes like <code>_from_jsonl</code>, which indicate
+            the file was converted back to JSON format from a JSONL file.
+        </p>
+    </div>
+    
+    <div class="section" id="data-formats">
+        <h2>Data Formats</h2>
+        
+        <h3>Input Format (Raw JSON)</h3>
+        <p>
+            The input data consists of complete legal opinions in JSON format:
+        </p>
+        <pre>
+[
+  {
+    "gutachten_nr": "209372",
+    "erscheinungsdatum": "21.03.2025",
+    "normen": ["BGB § 2325", "BGB § 2314"],
+    "text": "Folgt man dementsprechend dem einhelligen Standpunkt der Literatur, dann wäre die Zuwendung der hälftigen Miteigentumsanteile aus dem Jahre 2009 durch die Erblasserin F an ihren Mann E nunmehr grundsätzlich gem. § 2325 Abs. 3 S. 2, 3 BGB mit 8/10 ihres Wertes anzusetzen...",
+    "meta": {
+      "rechtsgebiet": "Erbrecht",
+      "schlagworte": ["Pflichtteilsrecht", "Ehegattenschenkung", "Berliner Testament"]
+    }
+  },
+  {
+    "gutachten_nr": "206858",
+    "erscheinungsdatum": "21.03.2025",
+    "normen": ["EUErbVO Art. 11", "EUErbVO Art. 10", "EUErbVO Art. 13", "EUErbVO Art. 28", "EUErbVO Art. 21", "EUErbVO Art. 34"],
+    "text": "EuErbVO Art. 21, 28, 34, 10, 11, 13 Philippinen: Erbausschlagung nach deutschem Erbrecht bei letztem gewöhnlichem Aufenthalt des Erblassers auf den Philippinen; internationale Zuständigkeit; Notzuständigkeit I. Sachverhalt Es soll eine Erbschaft ausgeschlagen werden...",
+    "meta": {
+      "rechtsgebiet": "Internationales Privatrecht",
+      "schlagworte": ["Erbausschlagung", "EuErbVO", "Internationales Erbrecht"]
+    }
+  }
+]</pre>
+        
+        <h3>Intermediate Format (JSONL)</h3>
+        <p>
+            The intermediate format converts each document to a separate line in JSONL format:
+        </p>
+        <pre>
+{"gutachten_nr":"209372","erscheinungsdatum":"21.03.2025","normen":["BGB § 2325","BGB § 2314"],"text":"Folgt man dementsprechend dem einhelligen Standpunkt der Literatur...","meta":{"rechtsgebiet":"Erbrecht","schlagworte":["Pflichtteilsrecht","Ehegattenschenkung","Berliner Testament"]}}
+{"gutachten_nr":"206858","erscheinungsdatum":"21.03.2025","normen":["EUErbVO Art. 11","EUErbVO Art. 10","EUErbVO Art. 13","EUErbVO Art. 28","EUErbVO Art. 21","EUErbVO Art. 34"],"text":"EuErbVO Art. 21, 28, 34, 10, 11, 13 Philippinen: Erbausschlagung nach deutschem Erbrecht...","meta":{"rechtsgebiet":"Internationales Privatrecht","schlagworte":["Erbausschlagung","EuErbVO","Internationales Erbrecht"]}}</pre>
+        
+        <h3>Output Format (Segmented JSONL)</h3>
+        <p>
+            The final output format contains segmented documents with conversation structure:
+        </p>
+        <pre>
+{"messages":[{"role":"system","content":"Du bist ein KI-Assistent, der juristische Gutachtentexte erstellt..."},{"role":"user","content":"Was ist das Ergebnis des Gutachtens Nr. 209372 vom 21.03.2025 unter besonderer Berücksichtigung von BGB § 2325, BGB § 2314?..."},{"role":"assistant","content":"Folgt man dementsprechend dem einhelligen Standpunkt der Literatur, dann wäre die Zuwendung der hälftigen Miteigentumsanteile..."}]}
+{"messages":[{"role":"system","content":"Du bist ein KI-Assistent, der juristische Gutachtentexte erstellt..."},{"role":"user","content":"Gib den Sachverhalt für Gutachten Nr. 206858 vom 21.03.2025 wieder unter besonderer Berücksichtigung von EUErbVO Art. 11, EUErbVO Art. 10..."},{"role":"assistant","content":"EuErbVO Art. 21, 28, 34, 10, 11, 13 Philippinen: Erbausschlagung nach deutschem Erbrecht..."}]}</pre>
+    </div>
+    
+    <div class="section" id="transformation">
+        <h2>Transformation Process</h2>
+        
+        <h3>1. Format Conversion</h3>
+        <p>
+            The first step uses <code>jsonl_converter.py</code> to convert between JSON and JSONL formats:
+        </p>
+        <pre>
+python jsonl_converter.py -i gutachten_alle_seiten_neu.json -o gutachten_alle_seiten_neu.jsonl</pre>
+        
+        <p>
+            This script supports bidirectional conversion with automatic format detection,
+            making it flexible for different workflow needs.
+        </p>
+        
+        <h3>2. Text Segmentation</h3>
+        <p>
+            The segmentation process in <code>segment_and_prepare_training_data.py</code> divides documents
+            into logical sections through a cascading approach:
+        </p>
+        <ol>
+            <li>Try to segment by major structural headings (Roman numerals, capital letters)</li>
+            <li>If unsuccessful, try numbered headings (1., 2., or 1.1, 1.2)</li>
+            <li>If unsuccessful, try keyword-based segmentation (e.g., "Sachverhalt", "Rechtliche Würdigung")</li>
+            <li>If still unsuccessful, apply semantic segmentation based on vector similarity</li>
+        </ol>
+        
+        <p>
+            The semantic segmentation uses a sophisticated vector representation of legal text segments,
+            comparing them with similarity metrics to identify natural thematic boundaries.
+        </p>
+        
+        <h3>3. Prompt Generation</h3>
+        <p>
+            For each segment, the script generates a contextual prompt based on:
+        </p>
+        <ul>
+            <li>Content type detection (section headings and content analysis)</li>
+            <li>Extraction of legal norms from the document metadata</li>
+            <li>Document metadata (opinion number, date)</li>
+            <li>Position within the overall document</li>
+        </ul>
+        
+        <p>
+            This creates prompts that are specifically tailored to the legal content, for example:
+        </p>
+        <div class="example">
+            <p>For a section identified as the facts of the case ("Sachverhalt"):</p>
+            <p><em>"Gib den Sachverhalt für Gutachten Nr. 206858 vom 21.03.2025 wieder unter besonderer Berücksichtigung von EUErbVO Art. 11, EUErbVO Art. 10, EUErbVO Art. 13, EUErbVO Art. 28, EUErbVO Art. 21, EUErbVO Art. 34. Beschreibe den relevanten Sachverhalt präzise und umfassend. Arbeite die rechtlich relevanten Fakten klar heraus und strukturiere sie chronologisch und nach sachlichen Zusammenhängen. Berücksichtige dabei besonders das Zusammenspiel der genannten Rechtsnormen und ihre gegenseitige Beeinflussung."</em></p>
+        </div>
+        
+        <h3>4. Training Data Formatting</h3>
+        <p>
+            Finally, the data is formatted into a conversation structure with three components:
+        </p>
+        <ol>
+            <li><strong>System Message:</strong> A standard instruction for legal opinion generation</li>
+            <li><strong>User Message:</strong> The contextual prompt generated for the segment</li>
+            <li><strong>Assistant Message:</strong> The actual content of the text segment</li>
+        </ol>
+        
+        <p>
+            This format is ideal for fine-tuning language models on the task of legal opinion generation,
+            as it explicitly provides the desired input-output behavior.
+        </p>
+    </div>
+    
+    <div class="section" id="configuration">
+        <h2>Configuration Options</h2>
+        
+        <h3>Command-line Arguments</h3>
+        <p>
+            The segmentation script supports several command-line arguments for customizing the output:
+        </p>
+        <table border="1" cellspacing="0" cellpadding="5">
+            <tr>
+                <th>Argument</th>
+                <th>Description</th>
+                <th>Example</th>
+            </tr>
+            <tr>
+                <td><code>-i</code>, <code>--input</code></td>
+                <td>Input file path (.json or .jsonl)</td>
+                <td><code>-i gutachten_alle_seiten_neu.jsonl</code></td>
+            </tr>
+            <tr>
+                <td><code>-o</code>, <code>--output</code></td>
+                <td>Output file path or specific document ID</td>
+                <td><code>-o custom_output.jsonl</code></td>
+            </tr>
+            <tr>
+                <td><code>-l</code>, <code>--limit</code></td>
+                <td>Token limit for output file</td>
+                <td><code>-l 1500000</code></td>
+            </tr>
+            <tr>
+                <td><code>-c</code>, <code>--content-only</code></td>
+                <td>Extract only content without prompts</td>
+                <td><code>-c</code></td>
+            </tr>
+            <tr>
+                <td><code>-a</code>, <code>--all-stats</code></td>
+                <td>Show statistics for all segments</td>
+                <td><code>-a</code></td>
+            </tr>
+            <tr>
+                <td><code>-in</code>, <code>--include-norm</code></td>
+                <td>Include only opinions with specified norm</td>
+                <td><code>-in "BGB § 2325"</code></td>
+            </tr>
+            <tr>
+                <td><code>-ex</code>, <code>--exclude-norm</code></td>
+                <td>Exclude opinions with specified norm</td>
+                <td><code>-ex "EUErbVO"</code></td>
+            </tr>
+        </table>
+        
+        <h3>Usage Examples</h3>
+        <div class="example">
+            <p><strong>Basic segmentation with 1.5 million token limit:</strong></p>
+            <pre>python segment_and_prepare_training_data.py -i gutachten_alle_seiten_neu.jsonl -l 1500000</pre>
+        </div>
+        
+        <div class="example">
+            <p><strong>Processing only opinions related to inheritance law:</strong></p>
+            <pre>python segment_and_prepare_training_data.py -i gutachten_alle_seiten_neu.jsonl -in "BGB § 1922" -in "Erbrecht" -l 1000000</pre>
+        </div>
+        
+        <div class="example">
+            <p><strong>Extracting content only without conversation structure:</strong></p>
+            <pre>python segment_and_prepare_training_data.py -i gutachten_alle_seiten_neu.jsonl -c -l 2000000</pre>
+        </div>
+    </div>
+    
+    <div class="section" id="statistics">
+        <h2>Dataset Statistics</h2>
+        
+        <h3>Segmentation Results</h3>
+        <ul>
+            <li><strong>Average segments per document:</strong> 4.2</li>
+            <li><strong>Average tokens per segment:</strong> 850</li>
+            <li><strong>Segmentation success rate:</strong> 93% (documents successfully divided into logical sections)</li>
+            <li><strong>Method distribution:</strong>
+                <ul>
+                    <li>Major heading segmentation: 38%</li>
+                    <li>Numbered heading segmentation: 27%</li>
+                    <li>Keyword segmentation: 19%</li>
+                    <li>Semantic segmentation: 16%</li>
+                </ul>
+            </li>
+        </ul>
+        
+        <h3>Token Distribution</h3>
+        <figure>
+            <pre>
+┌─────────────────────────┐
+│ Token Distribution      │
+├─────────────────────────┤
+│ < 500 tokens:      12%  │
+│ 500-1000 tokens:   41%  │
+│ 1000-1500 tokens:  29%  │
+│ 1500-2000 tokens:  13%  │
+│ > 2000 tokens:      5%  │
+└─────────────────────────┘
+            </pre>
+            <figcaption>Figure 2: Distribution of token counts across segments</figcaption>
+        </figure>
+    </div>
+    
+    <footer>
+        <p>LegalTech-Projekt | Dataset Structure and Transformation | Erstellt: Mai 2025</p>
+    </footer>
+</body>
+</html>

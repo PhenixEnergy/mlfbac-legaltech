@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalTech Project - Script Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.3em;
+        }
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            font-size: 1.8em;
+            color: #3498db;
+        }
+        h3 {
+            font-size: 1.5em;
+            color: #2980b9;
+        }
+        h4 {
+            font-size: 1.2em;
+            color: #16a085;
+        }
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        pre, code {
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            padding: 1em;
+            overflow: auto;
+            white-space: pre;
+        }
+        .section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .parameter {
+            margin-left: 20px;
+            margin-bottom: 10px;
+            padding-left: 15px;
+            border-left: 3px solid #3498db;
+        }
+        .example {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #27ae60;
+            margin: 20px 0;
+        }
+        .updated {
+            background-color: #e8f4f8;
+            padding: 8px;
+            border-radius: 4px;
+            font-style: italic;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        .toc {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .toc li {
+            margin-bottom: 8px;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div style="background-color: #3498db; color: white; padding: 10px; margin-bottom: 20px; border-radius: 5px; text-align: center;">
+        <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">← Zurück zur Hauptdokumentation</a>
+    </div>
+    <h1>Script Documentation</h1>
+      <div class="section toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#overview">Project Overview</a>
+                <ul>
+                    <li><a href="#description">Description</a></li>
+                    <li><a href="#project-context">Project Context</a></li>
+                    <li><a href="#data-processing">Data Processing Pipeline</a></li>
+                </ul>
+            </li>
+            <li><a href="#scripts">Scripts</a>
+                <ul>
+                    <li><a href="#jsonl_converter_py">jsonl_converter.py</a></li>
+                    <li><a href="#segment_and_prepare_training_data_py">segment_and_prepare_training_data.py</a></li>
+                    <li><a href="#semantic_segmentation_py">semantic_segmentation.py</a></li>
+                </ul>
+            </li>
+            <li><a href="#workflow">Workflow Examples</a>
+                <ul>
+                    <li><a href="#basic-workflow">Basic Conversion and Segmentation</a></li>
+                    <li><a href="#advanced-workflow">Advanced Processing with Options</a></li>
+                    <li><a href="#convert-back">Convert JSONL back to JSON</a></li>
+                    <li><a href="#test-processing">Test Processing with a Single Opinion</a></li>
+                    <li><a href="#auto-detect">Auto-detect Format and Convert</a></li>
+                </ul>
+            </li>
+            <li><a href="#updates">Recent Updates</a></li>
+            <li><a href="#future">Future Work</a></li>
+        </ul>
+    </div>
+    <div class="section" id="overview">
+        <h2>Project Overview</h2>
+        <p>
+    </p>        <h3 id="description">Description</h3>
+        <p>
+      This documentation provides comprehensive explanations of the scripts used in the LegalTech Database project.
+      The scripts are designed to process, segment, and prepare legal opinion texts for training language models.
+      Together, they form a complete pipeline for converting, segmenting, and formatting legal texts into high-quality
+      training data for fine-tuning language models on legal analysis and generation tasks.
+    </p>        <h3 id="project-context">Project Context</h3>
+        <p>
+      The project aims to create high-quality training data from a corpus of German legal opinions (Gutachten) 
+      for fine-tuning language models on legal text analysis and generation. The scripts handle 
+      various aspects of data preparation, from file format conversion to sophisticated semantic 
+      segmentation of complex legal texts.
+      
+      Legal opinions present unique challenges for language model training due to their specialized 
+      terminology, complex structure, and domain-specific requirements. These scripts address these 
+      challenges through:
+      
+      1. Efficient data format handling for large corpora
+      2. Intelligent text segmentation based on legal document structure
+      3. Context-aware prompt generation incorporating legal norms
+      4. Customizable output formats for different training approaches
+      5. Advanced semantic analysis tailored to legal texts
+      
+      The workflow typically involves:
+      1. Converting source data between JSON and JSONL formats using jsonl_converter.py
+      2. Segmenting and preparing the legal texts with segment_and_prepare_training_data.py
+      3. Utilizing advanced semantic segmentation via semantic_segmentation.py
+      
+      This comprehensive approach ensures that the training data preserves the logical structure of legal
+      opinions while optimizing it for language model training. The modular design allows for customization
+      at each stage to adapt to different models and training techniques.
+    </p>        <h3 id="data-processing">Data Processing Pipeline</h3>
+        <p>
+          The data processing pipeline consists of three main stages:
+        </p>
+        
+        <ol>
+          <li>
+            <strong>Format Conversion:</strong> The raw legal opinion data is typically provided in JSON format,
+            containing arrays of complete legal documents. The first step uses <code>jsonl_converter.py</code> to convert
+            this data to JSONL format for more efficient processing.
+          </li>
+          <li>
+            <strong>Segmentation and Prompt Generation:</strong> Each legal document is processed by 
+            <code>segment_and_prepare_training_data.py</code>, which:
+            <ul>
+              <li>Segments the document into logical sections using pattern-matching and semantic analysis</li>
+              <li>Extracts legal norms (references to legislation) for focused prompt generation</li>
+              <li>Creates appropriate prompts for each segment based on its content type</li>
+              <li>Formats the prompt-content pairs as conversation turns with system, user, and assistant messages</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Output Generation:</strong> The processed segments are written to a new JSONL file, with each line
+            containing a complete conversation turn. The output filename includes the token count information (e.g., "1_5_Mio"
+            for 1.5 million tokens).
+          </li>
+        </ol>
+        
+        <p>
+          Throughout this process, the scripts maintain document metadata, including unique identifiers and references to
+          legal norms. The enhanced segmentation capabilities from <code>semantic_segmentation.py</code> provide more accurate
+          and semantically meaningful document divisions compared to simple pattern-based approaches.
+        </p>
+      </p>
+    </div>
+    <div class="section" id="scripts">
+        <h2>Scripts</h2>
+        <div class="section" id="jsonl_converter_py">
+            <h3>jsonl_converter.py</h3>
+            <p>
+        Provides bidirectional conversion between JSON and JSONL file formats, essential for 
+        preparing training data for language models. JSON files contain data as a single array 
+        of objects, while JSONL (JSON Lines) format has one valid JSON object per line, which 
+        is more efficient for streaming and processing large datasets.
+      </p>
+        </div>        <div class="section" id="segment_and_prepare_training_data_py">
+            <h3>segment_and_prepare_training_data.py</h3>
+            <p>
+        Segments and prepares legal opinion texts for language model training by dividing them into 
+        logical sections, generating contextual prompts, and formatting the data according to training requirements.
+        The script focuses on creating high-quality training segments with emphasis on legal norms (normen field).
+      </p>
+      <p>
+        This script employs a sophisticated 3-part architecture:
+      </p>
+      <ol>
+          <li>
+              <strong>Text Segmentation</strong>: Uses multiple methods in cascade to identify logical boundaries:
+              <ul>
+                  <li>Structural pattern matching (headings, numbering systems)</li>
+                  <li>Legal keyword recognition ("Sachverhalt", "Rechtliche Würdigung", etc.)</li>
+                  <li>Semantic segmentation through vector similarity analysis</li>
+                  <li>Length-based constraints for optimal training examples</li>
+              </ul>
+          </li>
+          <li>
+              <strong>Prompt Generation</strong>: Creates contextual prompts for each segment based on:
+              <ul>
+                  <li>Content type detection (e.g., facts of case, legal analysis, conclusion)</li>
+                  <li>Legal norm extraction (e.g., "BGB § 2325, BGB § 2314")</li>
+                  <li>Document metadata (opinion number, date)</li>
+                  <li>Segment position within the overall document</li>
+              </ul>
+          </li>
+          <li>
+              <strong>Training Data Preparation</strong>: Formats segments according to language model requirements:
+              <ul>
+                  <li>Three-message structure: system instructions, user prompt, assistant response</li>
+                  <li>Token counting and limitation for controlled dataset sizes</li>
+                  <li>Filtering options for specific content types (-in, -ex flags)</li>
+                  <li>Content-only option for different training approaches (-c flag)</li>
+              </ul>
+          </li>
+      </ol>
+      <p>
+          The script supports multiple configuration options via command-line arguments and can dynamically adjust
+          segmentation parameters based on input characteristics.
+      </p>
+        </div>        <div class="section" id="semantic_segmentation_py">
+            <h3>semantic_segmentation.py</h3>
+            <p>
+        Provides advanced semantic segmentation capabilities for legal texts, enhancing the basic 
+        segmentation in segment_and_prepare_training_data.py by using semantic analysis to identify 
+        meaningful boundaries in complex legal documents.
+      </p>
+      <p>
+        The semantic segmentation module implements a vector-based approach to text segmentation with these key components:
+      </p>
+      <ul>
+          <li>
+              <strong>Legal Term Dictionary</strong>: Contains over 200 legal terms organized in 9 conceptual categories,
+              each with assigned importance weights ranging from 2.0 to 6.0.
+          </li>
+          <li>
+              <strong>Semantic Vector Representation</strong>: Converts text segments into weighted term vectors using a formula that considers:
+              <ul>
+                  <li>Exact term matches with full base weight</li>
+                  <li>Partial/composite term matches with reduced weight (40%)</li>
+                  <li>Position-based boosting (50% weight increase for terms in first paragraph)</li>
+                  <li>Special handling of legal citations and structural elements</li>
+              </ul>
+          </li>
+          <li>
+              <strong>Similarity Calculation</strong>: Measures the semantic similarity between text segments through:
+              <ul>
+                  <li>Direct term overlap (weighted at 70%)</li>
+                  <li>Categorical similarity that groups related legal concepts (weighted at 30%)</li>
+                  <li>Normalized scoring between 0 and 1</li>
+              </ul>
+          </li>
+          <li>
+              <strong>Boundary Detection</strong>: Identifies logical segment boundaries when:
+              <ul>
+                  <li>Semantic similarity falls below threshold (default 0.25)</li>
+                  <li>Maximum segment length is exceeded</li>
+                  <li>Explicit segment markers are detected</li>
+              </ul>
+          </li>
+      </ul>
+      <p>
+          The mathematical foundations of this approach are documented in detail in the separate
+          <a href="mathematical_background.html">Mathematical Background</a> document.
+      </p>
+        </div>
+    </div>
+    <div class="section" id="workflow">
+        <h2>Workflow Examples</h2>        <div class="section" id="basic-workflow">
+            <h3>Basic Conversion and Segmentation</h3>
+            <p>
+        A simple workflow for converting a JSON file to segmented training data.
+      </p>
+            <ol>
+                <li>
+                    Convert JSON data to JSONL format for more efficient processing:<br>
+                    <code>python jsonl_converter.py -i gutachten_alle_seiten_neu.json -o gutachten_alle_seiten_neu.jsonl</code>
+                </li>
+                <li>
+                    Segment and prepare the data for training with default parameters:<br>
+                    <code>python segment_and_prepare_training_data.py -i gutachten_alle_seiten_neu.jsonl -l 500000</code>
+                </li>
+            </ol>
+            <div class="example">
+                <h4>Expected Result:</h4>
+                <p>
+        This workflow produces a file named beispiele_500k_segmented_prepared.jsonl which contains
+        legal opinion segments formatted for language model training, with each line containing a JSON
+        object with the messages array (system, user, assistant) structure.
+      </p>
+            </div>
+        </div>        <div class="section" id="advanced-workflow">
+            <h3>Advanced Processing with Options</h3>
+            <p>
+        A more complex workflow using various options for customized output.
+      </p>
+            <ol>
+                <li>
+                    First convert the JSON file if not already in JSONL format:<br>
+                    <code>python jsonl_converter.py -i gutachten_alle_seiten_neu.json -o gutachten_alle_seiten_neu.jsonl</code>
+                </li>
+                <li>
+                    Process the data with advanced options for customized output:<br>
+                    <code>python segment_and_prepare_training_data.py -i gutachten_alle_seiten_neu.jsonl -l 2000000 -c -in -o gutachten_alle_seiten_neu_2_Mio_segmented_prepared.jsonl</code>
+                </li>
+            </ol>
+            <div class="example">
+                <h4>Expected Result:</h4>
+                <p>
+        This workflow produces a file named gutachten_alle_seiten_neu_2_Mio_segmented_prepared.jsonl
+        which contains only the content of each segment without prompts (-c flag) and excludes opinions
+        with international legal references (-in flag). The file size is limited to approximately 2 million tokens.
+      </p>
+            </div>
+        </div>        <div class="section" id="convert-back">
+            <h3>Convert JSONL back to JSON</h3>
+            <p>
+        Convert a JSONL file back to JSON format for different processing needs.
+      </p>
+            <ol>
+                <li>
+                    Convert a JSONL file back to standard JSON format:<br>
+                    <code>python jsonl_converter.py -i beispiele.jsonl -o beispiele.json</code>
+                </li>
+            </ol>
+            <div class="example">
+                <h4>Expected Result:</h4>
+                <p>
+        This workflow converts a JSONL file (one JSON object per line) back to a standard JSON file
+        with an array of objects. The output file beispiele.json can be useful for tools that expect
+        standard JSON format rather than JSONL.
+      </p>
+            </div>
+        </div>        <div class="section" id="test-processing">
+            <h3>Test Processing with a Single Opinion</h3>
+            <p>
+        Process just one legal opinion to test the segmentation and output format.
+      </p>
+            <ol>
+                <li>
+                    Process a single opinion with detailed statistics:<br>
+                    <code>python segment_and_prepare_training_data.py -i gutachten_alle_seiten_neu.jsonl -o 123456 -a</code>
+                </li>
+            </ol>
+            <div class="example">
+                <h4>Expected Result:</h4>
+                <p>
+        This workflow processes just one legal opinion from the input file (-o flag) and displays statistics
+        about all potential segments (-a flag), including those that might be excluded due to token limits.
+        This is particularly useful for testing and understanding how the segmentation algorithm works
+        before processing a large dataset.
+      </p>
+            </div>
+        </div>        <div class="section" id="auto-detect">
+            <h3>Auto-detect Format and Convert</h3>
+            <p>
+        Utilize the automatic format detection capability to convert files without specifying the direction.
+      </p>
+            <ol>
+                <li>
+                    Convert a file using automatic format detection:<br>
+                    <code>python jsonl_converter.py -i gutachten_alle_seiten_neu.json -o custom_output_name</code>
+                </li>
+            </ol>
+            <div class="example">
+                <h4>Expected Result:</h4>
+                <p>
+        This workflow demonstrates the format auto-detection feature, which determines whether the input
+        is JSON or JSONL and performs the appropriate conversion. The -o flag is used to specify a custom
+        output path, rather than using the default naming convention.
+      </p>
+            </div>
+        </div>
+    </div>
+    <div class="section" id="updates">
+        <h2>Recent Updates</h2>
+        <div class="updated">
+            <strong>May 20, 2025:</strong> 
+        Enhanced jsonl_converter.py to support bidirectional conversion between JSON and JSONL formats.
+        Added automatic file format detection and improved error handling. These improvements make the
+        script more versatile and user-friendly, allowing seamless conversion in both directions without
+        requiring manual format detection.
+      
+        </div>
+        <div class="updated">
+            <strong>May 15, 2025:</strong> 
+        Fixed normen field detection in segment_and_prepare_training_data.py to correctly recognize and 
+        display legal norms from JSON entries. The fix implements a multi-stage approach: first attempting
+        simple splitting by separators, then advanced pattern matching, and finally falling back to using
+        the whole string if needed. Also added segment count statistics to provide clearer metrics on the
+        number of segments generated per document.
+      
+        </div>
+        <div class="updated">
+            <strong>May 15, 2025:</strong> 
+        Added token limit optimization for JSON input files to stop processing when the token limit is reached.
+        This improvement significantly reduces processing time for large JSON files when a token limit is specified,
+        avoiding unnecessary processing of data that would exceed the limit.
+      
+        </div>
+        <div class="updated">
+            <strong>May 10, 2025:</strong> 
+        Added advanced semantic segmentation functionality through semantic_segmentation.py, providing 
+        more intelligent text division based on semantic content and legal document structure. This enhancement
+        significantly improves the quality of training segments by identifying semantically meaningful boundaries
+        instead of relying solely on structural patterns.
+      
+        </div>
+    </div>    <div class="section" id="future">
+        <h2>Future Work</h2>
+        <p>
+            Planned enhancements and future development directions for the legal text processing pipeline:
+        </p>
+        <ul>
+            <li>
+                <strong>Advanced Semantic Models</strong>: Replace the keyword-based semantic segmentation with transformer-based embeddings for more accurate thematic boundary detection.
+            </li>
+            <li>
+                <strong>Multi-document Linking</strong>: Develop capabilities to recognize and link related opinions, enabling cross-document context awareness in training data.
+            </li>
+            <li>
+                <strong>Domain-specific Tokenization</strong>: Implement specialized tokenization for legal terminology to optimize token usage and improve model training efficiency.
+            </li>
+            <li>
+                <strong>Interactive Segmentation Interface</strong>: Create a visual interface for reviewing and adjusting segment boundaries before training data generation.
+            </li>
+            <li>
+                <strong>Legal Citation Graph</strong>: Extract and analyze citation networks within the corpus to enhance understanding of precedent relationships.
+            </li>
+            <li>
+                <strong>Argument Structure Analysis</strong>: Extend segmentation to recognize specific argumentative structures in legal reasoning for more targeted training.
+            </li>
+        </ul>
+    </div>
+    <footer>
+        <p>Documentation generated on 2025-05-20</p>
+    </footer>
+</body>
+</html>
