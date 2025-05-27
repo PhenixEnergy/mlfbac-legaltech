@@ -1,0 +1,156 @@
+{
+  "version": "3.0.0-enterprise",
+  "last_updated": "2025-05-26",
+  "prompt_generation": {
+    "complexity_threshold": 0.6,
+    "max_prompts_per_segment": 8,
+    "enable_rag_query_generation": true,
+    "enable_multi_complexity_training": true,
+    "template_diversity_factor": 0.8,
+    "enable_adaptive_templates": true,
+    "template_optimization_level": "advanced"
+  },
+  "segmentation": {
+    "target_segment_count": null,
+    "min_segment_length": 50,
+    "max_segment_length": 2000,
+    "coherence_threshold": 0.5,
+    "complexity_threshold": 0.4,
+    "priority_filter": ["critical", "high", "medium"],
+    "enable_adaptive_sizing": true,
+    "semantic_boundary_detection": true,
+    "enable_ml_segmentation": true,
+    "segmentation_model": "enhanced",
+    "enable_context_preservation": true
+  },
+  "performance": {
+    "batch_size": 100,
+    "max_workers": 4,
+    "enable_caching": true,
+    "cache_dir": "./optimization_cache",
+    "memory_limit_mb": 2048,
+    "processing_timeout_seconds": 300,
+    "enable_adaptive_batching": true,
+    "load_balancing": true,
+    "circuit_breaker_enabled": true,
+    "circuit_breaker_threshold": 5,
+    "enable_redis_cache": false,
+    "redis_host": "localhost",
+    "redis_port": 6379,
+    "memory_pool_enabled": true,
+    "gc_threshold": 0.8
+  },
+  "output": {
+    "format": "jsonl",
+    "include_metadata": true,
+    "include_quality_metrics": true,
+    "compress_output": false,
+    "create_backup": true,
+    "enable_versioning": true,
+    "output_validation": true,
+    "include_performance_metrics": true
+  },
+  "quality_control": {
+    "enable_quality_filtering": true,
+    "min_quality_score": 0.6,
+    "require_legal_concepts": true,
+    "validate_prompt_relevance": true,
+    "enable_cross_validation": false,
+    "validation_level": "comprehensive",
+    "enable_anomaly_detection": true,
+    "enable_regression_detection": true,
+    "baseline_retention_days": 30,
+    "quality_thresholds": {
+      "min_content_quality": 0.7,
+      "min_format_consistency": 0.9,
+      "min_data_completeness": 0.8,
+      "max_anomaly_score": 0.3,
+      "max_error_rate": 0.05
+    }
+  },
+  "legal_domains": {
+    "zivilrecht": {
+      "weight": 1.0,
+      "specialized_templates": true,
+      "domain_specific_keywords": true,
+      "complexity_boost": 1.1
+    },
+    "strafrecht": {
+      "weight": 1.0,
+      "specialized_templates": true,
+      "domain_specific_keywords": true,
+      "complexity_boost": 1.2
+    },
+    "verfassungsrecht": {
+      "weight": 0.8,
+      "specialized_templates": true,
+      "domain_specific_keywords": false,
+      "complexity_boost": 1.0
+    },
+    "verwaltungsrecht": {
+      "weight": 0.7,
+      "specialized_templates": false,
+      "domain_specific_keywords": true,
+      "complexity_boost": 0.9
+    },
+    "arbeitsrecht": {
+      "weight": 0.6,
+      "specialized_templates": false,
+      "domain_specific_keywords": true,
+      "complexity_boost": 0.8
+    }
+  },
+  "enterprise_features": {
+    "enable_ai_quality_scoring": true,
+    "enable_semantic_clustering": true,
+    "enable_context_aware_prompting": true,
+    "enable_hierarchical_segmentation": true,
+    "enable_cross_reference_tracking": true,
+    "enable_performance_monitoring": true,
+    "enable_real_time_alerts": true,
+    "enable_plugin_system": true,
+    "enable_distributed_processing": false,
+    "enable_advanced_analytics": true
+  },
+  "monitoring": {
+    "enable_metrics_collection": true,
+    "metrics_retention_days": 30,
+    "performance_baselines": true,
+    "anomaly_threshold": 2.0,
+    "alert_thresholds": {
+      "quality_drop": 0.1,
+      "performance_degradation": 0.2,
+      "error_spike": 0.05,
+      "memory_usage": 0.9
+    }
+  },
+  "optimization_levels": {
+    "basic": {
+      "enable_caching": false,
+      "max_workers": 2,
+      "batch_size": 50,
+      "quality_level": "basic"
+    },
+    "standard": {
+      "enable_caching": true,
+      "max_workers": 4,
+      "batch_size": 100,
+      "quality_level": "standard"
+    },
+    "advanced": {
+      "enable_caching": true,
+      "max_workers": 8,
+      "batch_size": 200,
+      "quality_level": "comprehensive",
+      "enable_ml_optimization": true
+    },
+    "maximum": {
+      "enable_caching": true,
+      "max_workers": 16,
+      "batch_size": 300,
+      "quality_level": "enterprise",
+      "enable_ml_optimization": true,
+      "enable_distributed_processing": true
+    }
+  }
+}

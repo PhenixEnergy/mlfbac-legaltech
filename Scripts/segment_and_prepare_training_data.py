@@ -72,9 +72,10 @@ def format_token_limit_for_filename(limit_in_millions):
         k_value = int(limit_in_millions * 1000)
         return f"_{k_value}k"
 
-def _generate_user_prompt(heading, gutachten_nummer, erscheinungsdatum, segments_count_for_current_gutachten, normen_list=None):
+def _generate_user_prompt(heading, gutachten_nummer, erscheinungsdatum, segments_count_for_current_gutachten, normen_list=None, segment_context=None):
     """
-    Generiert den Benutzer-Prompt basierend auf Überschrift und anderen Metadaten, mit stärkerem Fokus auf Rechtsnormen.
+    Generiert den Benutzer-Prompt basierend auf Überschrift und anderen Metadaten, mit hochdifferenzierter 
+    juristischer Analyse und umfassender Kontextberücksichtigung.
     
     Args:
         heading: Die Abschnittsüberschrift aus dem segmentierten Text
@@ -82,10 +83,13 @@ def _generate_user_prompt(heading, gutachten_nummer, erscheinungsdatum, segments
         erscheinungsdatum: Das Erscheinungsdatum
         segments_count_for_current_gutachten: Anzahl der Segmente in diesem Gutachten
         normen_list: Liste der im Gutachten referenzierten Rechtsnormen
+        segment_context: Zusätzlicher Kontext über den Segmenttyp und Inhalt
         
     Returns:
-        Ein Prompt, der die Rechtsnormen und den Kontext berücksichtigt
+        Ein hochspezifischer Prompt, der die juristische Struktur und Rechtsnormen berücksichtigt
     """
+    import random
+    
     cleaned_heading_lower = heading.lower()
     prompt = ""
     
@@ -95,81 +99,262 @@ def _generate_user_prompt(heading, gutachten_nummer, erscheinungsdatum, segments
         normen_str = ", ".join(normen_list)
         normen_str = f" unter besonderer Berücksichtigung von {normen_str}"
 
-    # Hauptprompts basierend auf Abschnittstyp - erweiterte und verbesserte Prompts
-    if "sachverhalt" in cleaned_heading_lower:
-        prompt = f"Gib den Sachverhalt für Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} wieder{normen_str}. Beschreibe den relevanten Sachverhalt präzise und umfassend. Arbeite die rechtlich relevanten Fakten klar heraus und strukturiere sie chronologisch und nach sachlichen Zusammenhängen."
+    # HOCHSPEZIFISCHE PROMPT-GENERIERUNG basierend auf 60 Jahren juristischer Praxis
     
-    elif "frage" in cleaned_heading_lower: # Fängt "Frage" und "Fragen" ab
-        prompt = f"Welche rechtlichen Fragen behandelt Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}? Formuliere die Rechtsfragen präzise und systematisch. Skizziere dabei die zentralen juristischen Probleme und ordne sie den relevanten Rechtsbereichen zu."
+    # === SACHVERHALTS-PROMPTS (12 Varianten) ===
+    if any(keyword in cleaned_heading_lower for keyword in ["sachverhalt", "tatbestand", "lebenssachverhalt", "ausgangslage"]):
+        sachverhalt_prompts = [
+            f"Gib den maßgeblichen Sachverhalt für Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} wieder{normen_str}. Beschreibe den relevanten Sachverhalt präzise und umfassend. Arbeite die rechtlich relevanten Fakten klar heraus und strukturiere sie chronologisch und nach sachlichen Zusammenhängen.",
+            f"Stelle den entscheidungserheblichen Sachverhalt des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum} systematisch dar{normen_str}. Gliedere nach unstrittigem und streitigem Sachverhalt und hebe die für die rechtliche Beurteilung wesentlichen Tatsachen hervor.",
+            f"Schildere den relevanten Lebenssachverhalt zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Fokussiere auf die rechtlich bedeutsamen Umstände und deren zeitliche Abfolge. Arbeite die Interessenlagen der Beteiligten klar heraus.",
+            f"Gib die Tatsachengrundlage für das Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} wieder{normen_str}. Stelle unstreitige und streitige Tatsachen gegenüber und bewerte deren Relevanz für die rechtliche Analyse.",
+            f"Beschreibe den Ausgangssachverhalt des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Strukturiere die Darstellung nach Parteien, Zeitabläufen und rechtlich relevanten Handlungen.",
+            f"Erläutere die dem Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} zugrunde liegenden Tatsachen{normen_str}. Arbeite die rechtlich erheblichen Umstände heraus und ordne sie den entsprechenden Tatbestandsmerkmalen zu.",
+            f"Stelle den Tatbestand zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} umfassend dar{normen_str}. Gliedere nach Parteien, Vertragsbeziehungen und streitgegenständlichen Handlungen.",
+            f"Gib die Fallkonstellation des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum} strukturiert wieder{normen_str}. Berücksichtige alle rechtlich relevanten Aspekte des Sachverhalts und deren Beweiswürdigung.",
+            f"Beschreibe die tatsächlichen Gegebenheiten zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Differenziere zwischen Haupt- und Hilfssachverhalt und arbeite die rechtlichen Anknüpfungspunkte heraus.",
+            f"Erläutere den komplexen Sachverhalt des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Gliedere systematisch nach Sachverhaltsebenen und rechtlich relevanten Zeitpunkten.",
+            f"Stelle die Faktenlage zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} präzise dar{normen_str}. Fokussiere auf die für die Subsumtion erforderlichen Tatsachen und deren Bewertung.",
+            f"Gib den Prozesssachverhalt des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum} wieder{normen_str}. Berücksichtige sowohl den materiellen Sachverhalt als auch die verfahrensrechtlichen Aspekte."
+        ]
+        prompt = random.choice(sachverhalt_prompts)
     
-    elif "rechtsfrage" in cleaned_heading_lower:
-        prompt = f"Formuliere die zentrale Rechtsfrage des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite den rechtlichen Kern des Problems heraus und stelle dar, welche Normen zur Beantwortung herangezogen werden müssen. Grenzen Sie die Fragestellung präzise ein."
+    # === RECHTSFRAGEN-PROMPTS (15 Varianten) ===
+    elif any(keyword in cleaned_heading_lower for keyword in ["frage", "rechtsfrage", "fragestellung", "problematik", "problem"]):
+        rechtsfrage_prompts = [
+            f"Welche rechtlichen Fragen behandelt Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}? Formuliere die Rechtsfragen präzise und systematisch. Skizziere dabei die zentralen juristischen Probleme und ordne sie den relevanten Rechtsbereichen zu.",
+            f"Formuliere die zentrale Rechtsfrage des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite den rechtlichen Kern des Problems heraus und stelle dar, welche Normen zur Beantwortung herangezogen werden müssen.",
+            f"Identifiziere die Hauptrechtsfrage und Nebenrechtsfragen des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Strukturiere die Fragestellung nach Haupt- und Hilfsgutachten und arbeite Prüfungsreihenfolgen heraus.",
+            f"Analysiere die komplexe Rechtsproblematik des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Gliedere nach materiell-rechtlichen und prozessualen Fragestellungen und deren Interdependenzen.",
+            f"Stelle die gutachterliche Fragestellung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} systematisch dar{normen_str}. Berücksichtige sowohl die unmittelbare als auch die mittelbare Rechtsproblematik.",
+            f"Erläutere die rechtsdogmatischen Fragen des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite die methodischen Herausforderungen und Auslegungsprobleme heraus.",
+            f"Definiere die Streitpunkte und Rechtsfragen des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Differenziere zwischen unstrittigem und streitigem sowie zwischen Rechts- und Tatfragen.",
+            f"Beschreibe die juristischen Kernprobleme des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Fokussiere auf die dogmatisch umstrittenen Punkte und deren praktische Relevanz.",
+            f"Formuliere die Beratungsanfrage zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} präzise{normen_str}. Arbeite die rechtspolitischen und rechtspraktischen Implikationen heraus.",
+            f"Analysiere die Rechtsunsicherheiten des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Identifiziere Auslegungsbedürftigkeiten und Ermessensspielräume.",
+            f"Stelle die Beweisrechtsfragen des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum} dar{normen_str}. Berücksichtige Beweis- und Darlegungslasten sowie Vermutungsregeln.",
+            f"Erläutere die Abgrenzungsprobleme des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite die Konkurrenz- und Kollisionsfragen verschiedener Rechtsinstitute heraus.",
+            f"Beschreibe die Qualifikationsfragen des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Fokussiere auf die rechtliche Einordnung des Sachverhalts und deren Konsequenzen.",
+            f"Analysiere die Zuordnungs- und Zurechnungsfragen des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige objektive und subjektive Zurechnungskriterien.",
+            f"Formuliere die Verfassungsrechtsfragen des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite verfassungskonforme Auslegung und Grundrechtsbezug heraus."
+        ]
+        prompt = random.choice(rechtsfrage_prompts)
     
-    elif "ergebnis" in cleaned_heading_lower or "zusammenfassung" in cleaned_heading_lower or "fazit" in cleaned_heading_lower:
-        prompt = f"Was ist das Ergebnis des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}? Fasse die wesentlichen rechtlichen Schlussfolgerungen und deren Begründung zusammen. Zeige klar die Subsumtionskette auf und verbinde die rechtlichen Grundlagen mit dem konkreten Sachverhalt."
+    # === ERGEBNIS/FAZIT-PROMPTS (12 Varianten) ===
+    elif any(keyword in cleaned_heading_lower for keyword in ["ergebnis", "zusammenfassung", "fazit", "schlussfolgerung", "tenor", "gesamtergebnis"]):
+        ergebnis_prompts = [
+            f"Was ist das Ergebnis des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}? Fasse die wesentlichen rechtlichen Schlussfolgerungen und deren Begründung zusammen. Zeige klar die Subsumtionskette auf.",
+            f"Formuliere das Gesamtergebnis des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Strukturiere nach Haupt- und Nebenergebnissen und arbeite praktische Konsequenzen heraus.",
+            f"Stelle die Schlussfolgerungen des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum} systematisch dar{normen_str}. Berücksichtige sowohl die rechtliche Bewertung als auch die Handlungsempfehlungen.",
+            f"Gib das Fazit zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} strukturiert wieder{normen_str}. Verbinde die rechtlichen Grundlagen mit dem konkreten Sachverhalt und den daraus resultierenden Rechtsfolgen.",
+            f"Beschreibe das Resultat der rechtlichen Prüfung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite die Begründungskette und die praktischen Auswirkungen klar heraus.",
+            f"Erläutere die Gesamtbeurteilung des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Fokussiere auf die Lösung der Rechtsprobleme und deren dogmatische Einordnung.",
+            f"Formuliere den Tenor des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Stelle die rechtlichen Konsequenzen prägnant dar und arbeite Alternativlösungen heraus.",
+            f"Beschreibe die Synthese der rechtlichen Analyse zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Verbinde Einzelergebnisse zu einem schlüssigen Gesamtbild.",
+            f"Stelle das Endergebnis des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum} begründet dar{normen_str}. Berücksichtige alle Prüfungsebenen und deren Wechselwirkungen.",
+            f"Gib die abschließende Bewertung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} wieder{normen_str}. Arbeite Stärken und Schwächen der verschiedenen Lösungsansätze heraus.",
+            f"Erläutere das Zwischenergebnis und Gesamtergebnis des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Strukturiere nach Prüfungsebenen und logischer Argumentationsfolge.",
+            f"Beschreibe die rechtspraktischen Konsequenzen des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Fokussiere auf Umsetzbarkeit und prozessuale Verwertbarkeit der Ergebnisse."
+        ]
+        prompt = random.choice(ergebnis_prompts)
     
-    elif "tatbestand" in cleaned_heading_lower:
-        prompt = f"Stelle den Tatbestand im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str} dar. Fokussiere auf die relevanten Fakten und Umstände. Differenziere zwischen unstrittigem und streitigem Sachverhalt und arbeite das Begehren der Parteien klar heraus."
+    # === SUBSUMTIONS-PROMPTS (10 Varianten) ===
+    elif any(keyword in cleaned_heading_lower for keyword in ["subsumtion", "anwendung", "tatbestandsmerkmal", "prüfung", "voraussetzung"]):
+        subsumtion_prompts = [
+            f"Führe eine systematische Subsumtion für das Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str} durch. Wende die relevanten Rechtsnormen Schritt für Schritt auf den Sachverhalt an.",
+            f"Prüfe die Tatbestandsmerkmale zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} detailliert{normen_str}. Subsumiere jeden Tatbestand systematisch unter die einschlägigen Normen.",
+            f"Vollziehe die Rechtsanwendung für das Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} nach{normen_str}. Arbeite die Subsumtion unter die Tatbestandsmerkmale methodisch auf.",
+            f"Analysiere die Normerfüllung im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Prüfe systematisch, ob die Voraussetzungen der einschlägigen Rechtsnormen gegeben sind.",
+            f"Erläutere die Tatbestandssubsumtion zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite die Erfüllung der objektiven und subjektiven Tatbestandsmerkmale heraus.",
+            f"Beschreibe die Rechtsfolgenbestimmung des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Subsumiere unter die Rechtsfolgenanordnung und arbeite Ermessensspielräume heraus.",
+            f"Führe die konkrete Normanwendung für das Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} durch{normen_str}. Berücksichtige Ausnahmen, Einschränkungen und konkurrierende Normen.",
+            f"Prüfe die Rechtmäßigkeitsvoraussetzungen des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Subsumiere systematisch unter die materiellen und formellen Rechtmäßigkeitsanforderungen.",
+            f"Analysiere die Anspruchserfüllung im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Prüfe die Anspruchsvoraussetzungen und deren konkrete Erfüllung im Sachverhalt.",
+            f"Erläutere die Rechtsnormkonkretisierung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Wende abstrakte Rechtsnormen auf den konkreten Lebenssachverhalt an."
+        ]
+        prompt = random.choice(subsumtion_prompts)
     
-    elif "entscheidungsgründe" in cleaned_heading_lower or "gründe" in cleaned_heading_lower:
-        prompt = f"Erläutere die Entscheidungsgründe im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Gehe auf die rechtliche Begründung der Entscheidung ein, einschließlich der Auslegung der relevanten Normen, der Subsumtion und der daraus resultierenden Rechtsfolgen."
+    # === AUSLEGUNGS-PROMPTS (8 Varianten) ===
+    elif any(keyword in cleaned_heading_lower for keyword in ["auslegung", "interpretation", "wortlaut", "systematik", "teleologie", "genese"]):
+        auslegung_prompts = [
+            f"Erläutere die Normauslegung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Wende die vier klassischen Auslegungsmethoden systematisch an.",
+            f"Beschreibe die Wortlausauslegung des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Analysiere den möglichen Wortsinn und sprachliche Bedeutungsvarianten.",
+            f"Führe eine systematische Auslegung für das Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} durch{normen_str}. Berücksichtige den Normkontext und die Gesetzessystematik.",
+            f"Analysiere die teleologische Auslegung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite Normzweck und Gesetzesziel heraus.",
+            f"Erläutere die historische Auslegung des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige Entstehungsgeschichte und Gesetzgeberwillen.",
+            f"Beschreibe die verfassungskonforme Auslegung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite verfassungsrechtliche Vorgaben und Grundrechtsbezug heraus.",
+            f"Führe eine richtlinienkonforme Auslegung für das Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum} durch{normen_str}. Berücksichtige europarechtliche Vorgaben und deren nationale Umsetzung.",
+            f"Analysiere die evolutive Auslegung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite zeitbedingte Bedeutungswandel und Rechtsentwicklung heraus."
+        ]
+        prompt = random.choice(auslegung_prompts)
     
-    elif "rechtslage" in cleaned_heading_lower or "rechtliche würdigung" in cleaned_heading_lower:
-        prompt = f"Erörtere die Rechtslage zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Stelle die einschlägigen Rechtsnormen dar und erläutere ihre Auslegung und Anwendung auf den konkreten Fall. Berücksichtige dabei relevante Rechtsprechung und Lehrmeinungen."
+    # === ANSPRUCHSGRUNDLAGEN-PROMPTS (8 Varianten) ===
+    elif any(keyword in cleaned_heading_lower for keyword in ["anspruchsgrundlage", "anspruch", "rechtsnorm", "rechtsgrundlage"]):
+        anspruch_prompts = [
+            f"Identifiziere die Anspruchsgrundlagen im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Begründe die Einschlägigkeit und arbeite Anspruchskonkurrenzen heraus.",
+            f"Erläutere die Rechtsgrundlagen des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Analysiere Primary- und Sekundäransprüche sowie deren Verhältnis zueinander.",
+            f"Beschreibe die Normgrundlage für das Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite die einschlägigen Rechtsnormen und deren Anwendungsbereich heraus.",
+            f"Analysiere die Tatbestandsvoraussetzungen der Anspruchsgrundlage zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Strukturiere nach objektiven und subjektiven Elementen.",
+            f"Erläutere die Rechtsfolgenanordnung im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite primäre und sekundäre Rechtsfolgen systematisch heraus.",
+            f"Beschreibe die Anspruchsbegründung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Fokussiere auf Entstehung, Inhalt und Umfang des Anspruchs.",
+            f"Analysiere die Anspruchshemmung und -durchsetzung im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige Einreden und Durchsetzungshindernisse.",
+            f"Erläutere die Anspruchsmodifikation des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite Änderungen, Übertragungen und Erlöschen heraus."
+        ]
+        prompt = random.choice(anspruch_prompts)
     
-    elif "subsumtion" in cleaned_heading_lower:
-        prompt = f"Führe eine Subsumtion für das Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str} durch. Wende die relevanten Rechtsnormen Schritt für Schritt auf den Sachverhalt an. Prüfe die einzelnen Tatbestandsmerkmale systematisch und erläutere, ob sie im vorliegenden Fall erfüllt sind."
+    # === PROZESSRECHTLICHE PROMPTS (10 Varianten) ===
+    elif any(keyword in cleaned_heading_lower for keyword in ["zulässigkeit", "begründetheit", "verfahren", "prozess", "klage", "antrag"]):
+        prozess_prompts = [
+            f"Prüfe die Zulässigkeit im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Gehe systematisch alle prozessualen Voraussetzungen durch.",
+            f"Analysiere die Begründetheit des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Prüfe die materiell-rechtlichen Anspruchsvoraussetzungen.",
+            f"Erläutere die Verfahrensvoraussetzungen zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige formelle und materielle Prozessvoraussetzungen.",
+            f"Beschreibe die Zuständigkeitsregeln im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite sachliche, örtliche und funktionale Zuständigkeit heraus.",
+            f"Analysiere die Prozessfähigkeit und Postulationsfähigkeit zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Prüfe subjektive Verfahrensvoraussetzungen.",
+            f"Erläutere die Klagebefugnis und das Rechtsschutzbedürfnis im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite die besonderen Sachurteilsvoraussetzungen heraus.",
+            f"Beschreibe die Fristeinhaltung und Formvorschriften des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige prozessuale Heilungsmöglichkeiten.",
+            f"Analysiere die Rechtskraft und Bindungswirkung im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite objektive und subjektive Grenzen heraus.",
+            f"Erläutere die Beweislast und Beweisführung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige Darlegungs- und Beweislastverteilung.",
+            f"Beschreibe die Rechtsmittel und deren Zulässigkeit im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite Anfechtungsvoraussetzungen heraus."
+        ]
+        prompt = random.choice(prozess_prompts)
     
-    elif "einleitung" in cleaned_heading_lower:
-        prompt = f"Verfasse eine Einleitung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Führe kurz in die Thematik ein und skizziere den rechtlichen Kontext sowie die Bedeutung des zu behandelnden Rechtsproblems."
+    # === SPEZIALISIERTE RECHTSGEBIETS-PROMPTS ===
+    elif any(keyword in cleaned_heading_lower for keyword in ["erbrecht", "erbschaft", "testament", "pflichtteil", "erbe"]):
+        erbrecht_prompts = [
+            f"Analysiere die erbrechtlichen Aspekte des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige gesetzliche und gewillkürte Erbfolge.",
+            f"Erläutere die Pflichtteilsansprüche im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite Pflichtteilsberechnung und -ansprüche heraus.",
+            f"Beschreibe die Testamentsauslegung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Wende die erbrechtlichen Auslegungsregeln systematisch an."
+        ]
+        prompt = random.choice(erbrecht_prompts)
     
-    elif "anspruchsgrundlage" in cleaned_heading_lower:
-        prompt = f"Identifiziere und erläutere die relevanten Anspruchsgrundlagen im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Begründe, warum diese Normen im vorliegenden Fall einschlägig sind und welche Voraussetzungen erfüllt sein müssen."
+    elif any(keyword in cleaned_heading_lower for keyword in ["vertrag", "schuldverhältnis", "leistung", "schadensersatz"]):
+        schuldrecht_prompts = [
+            f"Analysiere das Schuldverhältnis im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige Entstehung, Inhalt und Erlöschen.",
+            f"Erläutere die Leistungsstörungen zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite Unmöglichkeit, Verzug und Schlechtleistung heraus.",
+            f"Beschreibe die Schadensersatzansprüche im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige Voraussetzungen und Schadensberechnung."
+        ]
+        prompt = random.choice(schuldrecht_prompts)
     
-    elif "zulässigkeit" in cleaned_heading_lower:
-        prompt = f"Prüfe die Zulässigkeit im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Gehe dabei auf alle relevanten prozessualen Voraussetzungen ein und begründe deine Einschätzung anhand der einschlägigen Verfahrensvorschriften."
+    # === METHODENLEHRE UND DOGMATIK-PROMPTS (8 Varianten) ===
+    elif any(keyword in cleaned_heading_lower for keyword in ["methodenlehre", "dogmatik", "rechtsprechung", "literatur", "meinung"]):
+        methodik_prompts = [
+            f"Erläutere die methodischen Grundlagen des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite die verwendeten Auslegungsmethoden heraus.",
+            f"Beschreibe die Dogmatik des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige herrschende Meinung und Mindermeinungen.",
+            f"Analysiere die Rechtsprechungslinien zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite Entwicklungen und Rechtsprechungswandel heraus.",
+            f"Erläutere den Meinungsstand in Rechtsprechung und Literatur zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige kontroverse Diskussionen.",
+            f"Beschreibe die Rechtsentwicklung im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite historische Entwicklung und aktuelle Tendenzen heraus.",
+            f"Analysiere die Systemgerechtigkeit der Lösung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige systematische Einordnung und Kohärenz.",
+            f"Erläutere die Rechtsvergleichung zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite verschiedene Rechtssysteme und deren Lösungsansätze heraus.",
+            f"Beschreibe die Rechtspolitik des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige de lege lata und de lege ferenda Betrachtungen."
+        ]
+        prompt = random.choice(methodik_prompts)
     
-    elif "begründetheit" in cleaned_heading_lower:
-        prompt = f"Prüfe die Begründetheit im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Untersuche, ob der geltend gemachte Anspruch materiell-rechtlich besteht und alle Voraussetzungen der Anspruchsgrundlage erfüllt sind."
-    
-    elif "spezifikation" in cleaned_heading_lower:
-        prompt = f"Erläutere die juristische Spezifikation im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Gehe detailliert auf die spezifischen rechtlichen Anforderungen ein und arbeite die Besonderheiten dieses Falles heraus."
-    
-    elif "rechtsfolge" in cleaned_heading_lower:
-        prompt = f"Beschreibe die Rechtsfolgen im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Lege dar, welche rechtlichen Konsequenzen sich aus der juristischen Beurteilung des Falles ergeben und welche praktischen Auswirkungen diese haben."
-    
-    # Fallback für sonstige oder generische Überschriften
+    # === FALLBACK: ERWEITERTE SPEZIALISTEN-PROMPTS ===
     else:
-        # Versuche, aus der Überschrift oder enthaltenen Gesetzen einen spezifischeren Prompt zu generieren
+        # Noch spezifischere Analyse basierend auf Inhalt und Kontext
         if "§" in heading or "Art." in heading or "Artikel" in heading:
-            # Die Überschrift enthält einen Gesetzeshinweis
-            prompt = f"Erläutere die Anwendung und Bedeutung von {heading} im Kontext des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Zeige auf, wie diese Rechtsnorm im vorliegenden Fall auszulegen ist und welche Folgen sich daraus ergeben."
-        elif any(gesetz in heading.lower() for gesetz in ["bgb", "stgb", "hgb", "zpo", "stpo", "vwgo", "gg"]):
-            # Die Überschrift enthält ein spezifisches Gesetz
-            prompt = f"Erläutere die Anwendung des {heading} im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Analysiere die relevanten Bestimmungen des Gesetzes und ihre Bedeutung für den vorliegenden Fall."
+            norm_prompts = [
+                f"Erläutere die normative Grundlage '{heading}' im Kontext des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Analysiere Tatbestand und Rechtsfolge systematisch.",
+                f"Beschreibe die Anwendung von '{heading}' zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite Auslegungsprobleme und praktische Konsequenzen heraus.",
+                f"Analysiere die Reichweite von '{heading}' im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige Normzweck und Schutzzweck der Vorschrift."
+            ]
+            prompt = random.choice(norm_prompts)
+        
+        elif any(gesetz in heading.lower() for gesetz in ["bgb", "stgb", "hgb", "zpo", "stpo", "vwgo", "gg", "eheG", "beurkG"]):
+            gesetz_prompts = [
+                f"Erläutere die Anwendung des {heading} im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Analysiere die einschlägigen Bestimmungen systematisch.",
+                f"Beschreibe die Bedeutung des {heading} für das Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite die relevanten Vorschriften und deren Zusammenspiel heraus.",
+                f"Analysiere die Rechtsgrundlagen des {heading} zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige die Gesetzessystematik und deren praktische Anwendung."
+            ]
+            prompt = random.choice(gesetz_prompts)
+        
         else:
-            # Generischer Prompt mit Berücksichtigung der Anzahl an Segmenten
+            # Hochkomplexe Fallback-Prompts basierend auf Segmentanzahl und Kontext
             if segments_count_for_current_gutachten <= 3:
-                # Bei wenigen Segmenten wahrscheinlich ein wichtiger Teil des Gutachtens
-                prompt = f"Erzeuge den Abschnitt '{heading}' des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Dieser Abschnitt stellt einen wesentlichen Teil des Gutachtens dar. Achte auf eine präzise juristische Sprache und klare Argumentationsführung."
-            else:
-                # Bei vielen Segmenten eher ein spezifischer Detailaspekt
-                prompt = f"Verfasse den Teilaspekt '{heading}' für das Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Gehe gezielt auf diesen spezifischen Punkt ein und stelle den Zusammenhang zum Gesamtgutachten her."
-
-    # Finalisierung des Prompts mit kontextueller Anpassung basierend auf Rechtsnormen
-    if normen_list and len(normen_list) > 0:
-        # Spezifischere Aufforderung bei vorhandenen Rechtsnormen
-        if len(normen_list) == 1:
-            prompt += f" Beziehe dich explizit auf {normen_list[0]} und erläutere die korrekte Auslegung und Anwendung dieser Norm."
-        else:
-            prompt += f" Berücksichtige dabei besonders das Zusammenspiel der genannten Rechtsnormen und ihre gegenseitige Beeinflussung."
+                wenige_segmente_prompts = [
+                    f"Erzeuge den wesentlichen Abschnitt '{heading}' des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Dieser Abschnitt bildet einen Hauptteil des Gutachtens. Achte auf systematische Strukturierung und präzise juristische Argumentation.",
+                    f"Beschreibe den zentralen Teil '{heading}' zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite die rechtlichen Kernpunkte heraus und stelle deren systematischen Zusammenhang dar.",
+                    f"Erläutere den Hauptabschnitt '{heading}' des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Fokussiere auf die wesentlichen rechtlichen Aspekte und deren dogmatische Einordnung."
+                ]
+                prompt = random.choice(wenige_segmente_prompts)
             
+            elif segments_count_for_current_gutachten <= 8:
+                mittlere_segmente_prompts = [
+                    f"Verfasse den spezifischen Abschnitt '{heading}' für das Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Gehe gezielt auf diesen Aspekt ein und arbeite dessen Bedeutung für das Gesamtgutachten heraus.",
+                    f"Erläutere den Teilbereich '{heading}' zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige den systematischen Zusammenhang und die Verknüpfung zu anderen Gutachtenteilen.",
+                    f"Beschreibe den Detailaspekt '{heading}' des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite die spezifischen rechtlichen Fragen heraus und deren Lösung."
+                ]
+                prompt = random.choice(mittlere_segmente_prompts)
+            
+            else:
+                viele_segmente_prompts = [
+                    f"Erläutere den hochspezifischen Teilaspekt '{heading}' zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Fokussiere auf die Detailproblematik und deren systematische Einordnung.",
+                    f"Beschreibe den differenzierten Einzelpunkt '{heading}' des Gutachtens Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Arbeite die Feinheiten der rechtlichen Analyse heraus.",
+                    f"Analysiere das spezielle Element '{heading}' im Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Berücksichtige die Detailproblematik und deren Auswirkungen auf das Gesamtergebnis.",
+                    f"Erläutere die Nuancierung '{heading}' zum Gutachten Nr. {gutachten_nummer} vom {erscheinungsdatum}{normen_str}. Gehe auf die subtilen rechtlichen Unterscheidungen und deren praktische Bedeutung ein."
+                ]
+                prompt = random.choice(viele_segmente_prompts)
+
+    # === ERWEITERTE KONTEXTUELLE ANPASSUNGEN ===
+    
+    # Normen-spezifische Ergänzungen
+    if normen_list and len(normen_list) > 0:
+        if len(normen_list) == 1:
+            norm_erganzungen = [
+                f" Beziehe dich explizit auf {normen_list[0]} und erläutere die systematische Auslegung und konkrete Anwendung dieser Norm.",
+                f" Analysiere {normen_list[0]} unter Berücksichtigung aller vier Auslegungsmethoden (Wortlaut, Systematik, Historie, Teleologie).",
+                f" Wende {normen_list[0]} methodisch fundiert an und arbeite die praktischen Konsequenzen der Normanwendung heraus.",
+                f" Subsumiere systematisch unter {normen_list[0]} und berücksichtige relevante Rechtsprechung und Literatur zu dieser Norm."
+            ]
+            prompt += f" {random.choice(norm_erganzungen)}"
+        
+        elif len(normen_list) <= 3:
+            wenige_normen_erganzungen = [
+                f" Berücksichtige das systematische Zusammenspiel der Normen {', '.join(normen_list)} und deren gegenseitige Beeinflussung.",
+                f" Analysiere die Normkonkurrenz zwischen {', '.join(normen_list)} und arbeite Vorrang- und Spezialitätsverhältnisse heraus.",
+                f" Wende die Normen {', '.join(normen_list)} in ihrer systematischen Verknüpfung an und berücksichtige deren Wechselwirkungen.",
+                f" Erläutere die teleologische Verbindung zwischen {', '.join(normen_list)} und deren gemeinsame Zielsetzung."
+            ]
+            prompt += f" {random.choice(wenige_normen_erganzungen)}"
+        
+        else:
+            viele_normen_erganzungen = [
+                f" Berücksichtige das komplexe Normgefüge der genannten Rechtsnormen und deren systematische Einordnung in das Gesamtsystem.",
+                f" Analysiere die Normenhierarchie und -konkurrenz zwischen den verschiedenen Rechtsnormen und arbeite Kollisionslösungen heraus.",
+                f" Wende die umfangreichen Rechtsgrundlagen systematisch an und berücksichtige deren Interdependenzen und Wechselwirkungen.",
+                f" Strukturiere die Anwendung der zahlreichen Normen nach sachlogischen Gesichtspunkten und arbeite den roten Faden heraus."
+            ]
+            prompt += f" {random.choice(viele_normen_erganzungen)}"
+    
+    # Kontextuelle Ergänzungen basierend auf Segment-Kontext
+    if segment_context:
+        if "komplex" in str(segment_context).lower():
+            prompt += " Berücksichtige die Komplexität des Sachverhalts und arbeite die verschiedenen Lösungsebenen systematisch heraus."
+        elif "kurz" in str(segment_context).lower():
+            prompt += " Fokussiere auf die wesentlichen Punkte und stelle diese prägnant und systematisch dar."
+        elif "detail" in str(segment_context).lower():
+            prompt += " Gehe detailliert auf alle relevanten Aspekte ein und arbeite auch Nuancierungen und Sonderfälle heraus."
+    
     return prompt
 
 def segment_text(text_content):
     """
-    Segmentiert einen Gutachtentext in logische Abschnitte durch Erkennung von Überschriften
-    und strukturellen Merkmalen. Verbesserte Version mit intelligigerer Segmenterkennung.
+    REVOLUTIONÄRE SEGMENTIERUNG für juristische Gutachten - basierend auf 60 Jahren Anwaltspraxis.
+    
+    Ersetzt die limitierten 6 Grundmethoden durch ein hochmodernes 20+ Pattern-System mit:
+    - Intelligente Primärstruktur-Erkennung (Römische Zahlen, Kapitel)
+    - Avancierte nummerierte Strukturierung (1., 2., 1.1, etc.)
+    - Spezialisierte juristische Standard-Überschriften
+    - Gesetzesverweise als Segmentierungselemente  
+    - Juristische Fachwendungen und Ausdrücke
+    - Methodische Gutachtenstil-Segmentierung
+    - Prüfungsstruktur-Segmentierung
+    - Inhaltsbasierte Strukturerkennung
+    - Rechtsprechungszitate und Literaturverweise
+    - Argumentations- und Begründungsmuster
+    - Prozessrechtliche Strukturen
+    - Rechtsgebietsspezifische Segmentierung
+    - Notarielle Strukturen
     
     Args:
         text_content: Der zu segmentierende Text
@@ -177,279 +362,502 @@ def segment_text(text_content):
     Returns:
         Eine Liste von Tupeln (Überschrift, Abschnittstext)
     """
+    
+    # Nutze erweiterte semantische Segmentierung wenn verfügbar
+    if ENHANCED_SEGMENTATION_AVAILABLE:
+        try:
+            enhanced_result = enhanced_segment_text(text_content)
+            if enhanced_result and len(enhanced_result) > 1:
+                return enhanced_result
+        except Exception as e:
+            print(f"Warnung: Erweiterte Segmentierung fehlgeschlagen: {e}")
+            # Fallback auf revolutionäre Basis-Segmentierung
+    
     sections = []
     
-    # ---- ERWEITERTE HEURISTISCHE PATTERN-ERKENNUNG ----
+    # ---- REVOLUTIONÄRE 20+ PATTERN-ERKENNUNGSMETHODEN ----
     
-    # Hauptüberschriften (römische Zahlen, Abschnittsmuster)
-    major_heading_pattern = re.compile(
-        r"^((?:[A-Z]\.|[IVX]+\.|[0-9]+\.)\s+.{1,80}|"
-        r"I\. Sachverhalt|II\. Rechtliche Würdigung|III\.|IV\.)\s*[:.]?\s*$",
-        re.MULTILINE | re.IGNORECASE
-    )
+    # 1. PRIMÄRSTRUKTUR-ERKENNUNG: Römische Zahlen und Hauptkapitel
+    primary_structure_patterns = [
+        # Klassische römische Gliederung
+        re.compile(r"^([IVX]{1,4})\.\s*([A-ZÄÖÜ].{1,100}?)(?:\s*[:.]?\s*|\n)", re.MULTILINE | re.IGNORECASE),
+        # Erweiterte römische Nummerierung mit Zusätzen
+        re.compile(r"^((?:I{1,3}|IV|V|VI{0,3}|IX|X{1,3}|XL|L|LX{0,3}|XC|C{1,3}))\.\s*(?:\s*-\s*)?([A-ZÄÖÜ].{1,100}?)(?:\s*[:.]?\s*|\n)", re.MULTILINE | re.IGNORECASE),
+        # Kapitel-Struktur
+        re.compile(r"^(Kapitel\s+[IVX]{1,4}|Kap\.\s*[IVX]{1,4}|Teil\s+[IVX]{1,4})\s*[:\-.]?\s*([A-ZÄÖÜ].{1,100}?)(?:\s*[:.]?\s*|\n)", re.MULTILINE | re.IGNORECASE),
+        # Großbuchstaben-Gliederung
+        re.compile(r"^([A-Z])\.\s*([A-ZÄÖÜ].{1,100}?)(?:\s*[:.]?\s*|\n)", re.MULTILINE),
+    ]
     
-    # Nummerierte Überschriften (1., 2., etc. oder 1.1, 1.2, etc.)
-    numbered_heading_pattern = re.compile(r"^(?:\d+)\.(?:\d+)?(?:\d+)?\s+", re.MULTILINE)
+    # 2. NUMMERIERTE STRUKTURIERUNG: Erweiterte Nummerierung
+    numbered_structure_patterns = [
+        # Standard-Nummerierung
+        re.compile(r"^(\d{1,2})\.\s*([A-ZÄÖÜ].{1,100}?)(?:\s*[:.]?\s*|\n)", re.MULTILINE),
+        # Hierarchische Nummerierung (1.1, 1.2, etc.)
+        re.compile(r"^(\d{1,2}\.\d{1,2})\s*([A-ZÄÖÜ].{1,100}?)(?:\s*[:.]?\s*|\n)", re.MULTILINE),
+        # Tiefe Hierarchie (1.1.1, etc.)
+        re.compile(r"^(\d{1,2}\.\d{1,2}\.\d{1,2})\s*([A-ZÄÖÜ].{1,100}?)(?:\s*[:.]?\s*|\n)", re.MULTILINE),
+        # Nummerierung mit Klammern
+        re.compile(r"^(\d{1,2})\)\s*([A-ZÄÖÜ].{1,100}?)(?:\s*[:.]?\s*|\n)", re.MULTILINE),
+    ]
     
-    # Gesetzesverweise als potenzielle Abschnittsgrenzen
-    law_reference_pattern = re.compile(r"^(?:§|Art\.?|Artikel)\s*\d+.*?$", re.MULTILINE)
-    
-    # Erweiterte Erkennung von juristischen Spezifikationen 
-    specification_pattern = re.compile(r"^(Im Sinne von|In Anwendung von|Nach|Gemäß|Laut|Entsprechend)\s+(?:§|Art\.?|Artikel)\s*\d+.*?$", re.MULTILINE | re.IGNORECASE)
-    
-    # Schlüsselwörter wie "Sachverhalt", "Frage", etc. - erweiterte Liste
-    keyword_heading_pattern = re.compile(
-        r"^(Sachverhalt|Frage(?:n)?|Zur Rechtslage|Rechtslage|Ergebnis|Lösung|Beurteilung|"
-        r"Tenor|Einleitung|Zusammenfassung|Fazit|Gutachten|Begründung|Stellungnahme|"
-        r"Gründe|Entscheidungsgründe|Tatbestand|Anmerkung|Anwendbares Recht|Auslegung|"
-        r"Subsumtion|Voraussetzungen|Rechtsgrundlage|Materielles Recht|Formelles Recht|"
-        r"Prozessvoraussetzungen|Zulässigkeit|Begründetheit|Anspruchsgrundlage|Prüfung|"
-        r"Rechtliche Grundlagen|Gutachterlicher Teil|Erläuterung|Rechtsfolge(?:n)?|"
-        r"Antragsstellung|Verhältnismäßigkeit|Schadensersatzanspruch|"
-        r"Gesetzliche Grundlage|Haftung|Streitgegenstand|Problematik|"
-        r"Normzweck|Normauslegung|Art und Weise|Analyse|Kurzes Fazit|Beweiserhebung"
-        r")[\s:.]",
-        re.MULTILINE | re.IGNORECASE
-    )
-    
-    # Juristische Wendungen, die typischerweise Abschnitte einleiten
-    legal_phrase_pattern = re.compile(
-        r"^(Hiermit erstatte ich folgendes Rechtsgutachten|"
-        r"In der vorliegenden Rechtssache|"
-        r"Das vorliegende Gutachten behandelt die Frage|"
-        r"Ich wurde gebeten, zu folgender Rechtsfrage|"
-        r"In der Angelegenheit|"
-        r"Folgender Sachverhalt liegt vor|"
-        r"Zunächst ist festzustellen|"
-        r"Der Senat hat hierzu folgendes entschieden|"
-        r"Anders als im Urteil des|"
-        r"Es gilt zu prüfen|"
-        r"Im Ergebnis ist festzuhalten|"
-        r"In der Entscheidung vom)"
-    )
-    
-    # Strukturierte Entscheidungsmuster
-    decision_pattern = re.compile(
-        r"^(Die Kammer|Der Senat|Das Gericht|Im Ergebnis|Zusammenfassend|"
-        r"Im Tenor|Gemäß ständiger Rechtsprechung|Die herrschende Meinung|"
-        r"Abweichend hiervon|Im Unterschied zu|Im Gegensatz zur Auffassung|"
-        r"Dem Antrag folgend|Im Sinne des Gesetzgebers)")
-
-    # Suche zunächst nach Hauptüberschriften (römische Zahlen, Buchstaben)
-    parts = major_heading_pattern.split(text_content)
-    headings_markers = major_heading_pattern.findall(text_content)
-
-    if len(parts) > 1:
-        # Es wurden Hauptüberschriften gefunden
-        if parts[0].strip() and len(parts[0].strip()) > 50:  # Füge Einleitung nur hinzu, wenn substantiell
-            sections.append(("Einleitung", parts[0].strip()))
+    # 3. JURISTISCHE STANDARD-ÜBERSCHRIFTEN: Fachspezifische Erkennung
+    legal_standard_headers = [
+        # Gutachten-Klassiker
+        r"^(Sachverhalt|Lebenssachverhalt|Tatsachenverhalt|Ausgangssachverhalt)(?:\s*[:.]?\s*|\n)",
+        r"^(Frage(?:stellung)?|Rechtsfrage(?:n)?|Gutachtenfrage(?:n)?|Streitfrage(?:n)?)(?:\s*[:.]?\s*|\n)",
+        r"^(Rechtslage|Zur Rechtslage|Anwendbares Recht|Materielles Recht|Formelles Recht)(?:\s*[:.]?\s*|\n)",
+        r"^(Rechtliche Würdigung|Juristische Würdigung|Beurteilung|Bewertung)(?:\s*[:.]?\s*|\n)",
+        r"^(Subsumtion|Anwendung|Prüfung der Voraussetzungen|Tatbestandsprüfung)(?:\s*[:.]?\s*|\n)",
+        r"^(Ergebnis|Fazit|Zusammenfassung|Gesamtergebnis|Schlussfolgerung)(?:\s*[:.]?\s*|\n)",
         
-        for i, marker_text in enumerate(headings_markers):
-            section_content_full = parts[i+1] 
-            potential_title_line = section_content_full.lstrip().split('\n', 1)[0].strip()
-            current_heading_text = marker_text.strip()
-            
-            if potential_title_line and len(potential_title_line) < 100 and not potential_title_line.endswith('.'):
-                current_heading_text = f"{marker_text.strip()} {potential_title_line}"
-                if section_content_full.lstrip().startswith(potential_title_line):
-                    section_content_full = section_content_full.lstrip()[len(potential_title_line):]
-            
-            final_section_content = section_content_full.strip()
-            if final_section_content:
-                sections.append((current_heading_text, final_section_content))
-    
-    # Wenn keine Hauptüberschriften gefunden wurden, versuche nummerierte Überschriften
-    elif not sections:
-        parts = numbered_heading_pattern.split(text_content)
-        headings_markers = numbered_heading_pattern.findall(text_content)
+        # Prozessrechtliche Standards
+        r"^(Zulässigkeit|Prozessvoraussetzungen|Verfahrensvoraussetzungen)(?:\s*[:.]?\s*|\n)",
+        r"^(Begründetheit|Materiell-rechtliche Prüfung|Sachenentscheidung)(?:\s*[:.]?\s*|\n)",
+        r"^(Tenor|Entscheidungsformel|Urteilsspruch)(?:\s*[:.]?\s*|\n)",
         
-        if len(parts) > 1:
-            # Es wurden nummerierte Überschriften gefunden
-            if parts[0].strip() and len(parts[0].strip()) > 50:
-                sections.append(("Einleitung", parts[0].strip()))
+        # Vertiefende Strukturen
+        r"^(Anspruchsgrundlage(?:n)?|Rechtsgrundlage(?:n)?|Gesetzliche Grundlage(?:n)?)(?:\s*[:.]?\s*|\n)",
+        r"^(Tatbestand(?:smerkmale)?|Tatbestandsvoraussetzungen|Tatbestandsprüfung)(?:\s*[:.]?\s*|\n)",
+        r"^(Rechtsfolge(?:n)?|Rechtsfolgenbestimmung|Rechtswirkung(?:en)?)(?:\s*[:.]?\s*|\n)",
+        
+        # Spezialgebiete
+        r"^(Haftung(?:sgrundlage)?|Verschulden|Kausalität|Schaden)(?:\s*[:.]?\s*|\n)",
+        r"^(Verfassungsrechtliche Prüfung|Grundrechtsprüfung|Verhältnismäßigkeitsprüfung)(?:\s*[:.]?\s*|\n)",
+        r"^(Auslegung|Normauslegung|Wortlautauslegung|Systematische Auslegung|Teleologische Auslegung)(?:\s*[:.]?\s*|\n)",
+    ]
+    
+    # 4. GESETZESVERWEISE als Segmentierungselemente
+    law_reference_patterns = [
+        # Standard-Gesetzesverweise
+        re.compile(r"^(§+\s*\d+[a-z]?\s*(?:Abs\.\s*\d+\s*)?(?:S\.\s*\d+\s*)?(?:[A-ZÄÖÜ]+))(?:\s*[:.]?\s*|\n)", re.MULTILINE),
+        # Artikel-Verweise
+        re.compile(r"^(Art\.?\s*\d+[a-z]?\s*(?:Abs\.\s*\d+\s*)?(?:[A-ZÄÖÜ]+))(?:\s*[:.]?\s*|\n)", re.MULTILINE),
+        # Erweiterte Gesetzesverweise mit Kontext
+        re.compile(r"^(Nach\s+§\s*\d+.*?[A-ZÄÖÜ]+|Gem\.\s*§\s*\d+.*?[A-ZÄÖÜ]+|Gemäß\s+§\s*\d+.*?[A-ZÄÖÜ]+)(?:\s*[:.]?\s*|\n)", re.MULTILINE | re.IGNORECASE),
+        # Gesetzesgruppen
+        re.compile(r"^(§§\s*\d+\s*ff\.?\s*[A-ZÄÖÜ]+|§§\s*\d+\s*-\s*\d+\s*[A-ZÄÖÜ]+)(?:\s*[:.]?\s*|\n)", re.MULTILINE),
+    ]
+    
+    # 5. JURISTISCHE FACHWENDUNGEN
+    legal_phrase_patterns = [
+        # Prüfungseinleitungen
+        r"(?:^|\n)([Zz]u\s+prüfen\s+ist(?:\s+(?:zunächst|dabei|ferner|weiterhin|des\s+weiteren))?,?\s+ob\s+.{5,100}?)(?:\.|$)",
+        r"(?:^|\n)([Ff]raglich\s+ist(?:\s+(?:dabei|hier|zunächst|ferner))?,?\s+ob\s+.{5,100}?)(?:\.|$)",
+        r"(?:^|\n)([Pp]roblematisch\s+ist(?:\s+(?:dabei|hier|insoweit))?,?\s+ob\s+.{5,100}?)(?:\.|$)",
+        
+        # Ergebnis-Wendungen
+        r"(?:^|\n)([Ii]m\s+Ergebnis\s+(?:ist\s+festzuhalten|lässt\s+sich\s+festhalten|kann\s+festgestellt\s+werden)\s*,?\s+dass\s+.{5,100}?)(?:\.|$)",
+        r"(?:^|\n)([Zz]usammenfassend\s+(?:ist\s+festzustellen|lässt\s+sich\s+sagen)\s*,?\s+dass\s+.{5,100}?)(?:\.|$)",
+        r"(?:^|\n)([Dd]emnach\s+(?:ist|liegt|besteht)\s+.{5,100}?)(?:\.|$)",
+        
+        # Subsumtions-Wendungen
+        r"(?:^|\n)([Dd]iese\s+Voraussetzungen\s+sind\s+(?:gegeben|erfüllt|vorliegend\s+erfüllt)\s+.{5,100}?)(?:\.|$)",
+        r"(?:^|\n)([Dd]as\s+Tatbestandsmerkmal\s+.{5,50}\s+ist\s+(?:erfüllt|gegeben|vorliegend\s+erfüllt)\s+.{5,100}?)(?:\.|$)",
+        
+        # Gutachtenstil-Marker
+        r"(?:^|\n)([Dd]er\s+Obersatz\s+lautet\s*:\s*.{5,100}?)(?:\.|$)",
+        r"(?:^|\n)([Dd]er\s+Untersatz\s+ergibt\s*:\s*.{5,100}?)(?:\.|$)",
+        r"(?:^|\n)([Dd]er\s+Schlusssatz\s+lautet\s*:\s*.{5,100}?)(?:\.|$)",
+    ]
+    
+    # 6. METHODISCHE GUTACHTENSTIL-SEGMENTIERUNG
+    gutachtenstil_patterns = [
+        # Gutachten-Struktur
+        r"(?:^|\n)([Oo]bersatz\s*[:.]?\s*.{5,200}?)(?:\n|$)",
+        r"(?:^|\n)([Uu]ntersatz\s*[:.]?\s*.{5,200}?)(?:\n|$)",
+        r"(?:^|\n)([Ss]chlusssatz\s*[:.]?\s*.{5,200}?)(?:\n|$)",
+        
+        # Prüfungsschema
+        r"(?:^|\n)([Pp]rüfungsschema\s+(?:zu\s+)?§\s*\d+.*?)(?:\n|$)",
+        r"(?:^|\n)([Aa]nspruchsgrundlage\s*[:.]?\s*.{5,100}?)(?:\n|$)",
+        r"(?:^|\n)([Aa]nspruchsvoraussetzungen\s*[:.]?\s*.{5,100}?)(?:\n|$)",
+    ]
+    
+    # 7. PRÜFUNGSSTRUKTUR-SEGMENTIERUNG
+    examination_patterns = [
+        # Strukturierte Prüfungen
+        r"(?:^|\n)(A\.\s+Zulässigkeit\s+.{0,100}?)(?:\n|$)",
+        r"(?:^|\n)(B\.\s+Begründetheit\s+.{0,100}?)(?:\n|$)",
+        r"(?:^|\n)(I\.\s+Anspruch\s+entstanden\s+.{0,100}?)(?:\n|$)",
+        r"(?:^|\n)(II\.\s+Anspruch\s+nicht\s+(?:untergegangen|erloschen)\s+.{0,100}?)(?:\n|$)",
+        r"(?:^|\n)(III\.\s+Anspruch\s+durchsetzbar\s+.{0,100}?)(?:\n|$)",
+        
+        # Vertiefende Prüfungspunkte
+        r"(?:^|\n)(\d+\.\s+Tatbestandsvoraussetzungen\s+.{0,100}?)(?:\n|$)",
+        r"(?:^|\n)(\d+\.\s+Rechtsfolge(?:n)?\s+.{0,100}?)(?:\n|$)",
+        r"(?:^|\n)(\d+\.\s+Zwischenergebnis\s+.{0,100}?)(?:\n|$)",
+    ]
+    
+    # 8. INHALTSBASIERTE STRUKTURERKENNUNG
+    content_based_patterns = [
+        # Sachverhalts-Indikatoren
+        r"(?:^|\n)(.{0,20}(?:[Ff]olgender|[Dd]er\s+vorliegende|[Dd]er\s+geschilderte)\s+Sachverhalt\s+.{5,100}?)(?:\n|$)",
+        r"(?:^|\n)(.{0,20}[Aa]m\s+\d{1,2}\.\d{1,2}\.\d{4}\s+.{5,100}?)(?:\n|$)",
+        r"(?:^|\n)(.{0,20}[Ii]m\s+vorliegenden\s+Fall\s+.{5,100}?)(?:\n|$)",
+        
+        # Rechtsprechungs-Indikatoren
+        r"(?:^|\n)(.{0,20}(?:BGH|BVerfG|BAG|BSG|BFH|BVerwG),?\s+(?:Urteil|Beschluss)\s+vom\s+.{5,100}?)(?:\n|$)",
+        r"(?:^|\n)(.{0,20}(?:Nach\s+ständiger\s+Rechtsprechung|Die\s+herrschende\s+Meinung|Nach\s+überwiegender\s+Ansicht)\s+.{5,100}?)(?:\n|$)",
+        
+        # Literatur-Indikatoren
+        r"(?:^|\n)(.{0,20}(?:Vgl\.|Siehe)\s+.{5,50},\s+.{5,100}?)(?:\n|$)",
+        r"(?:^|\n)(.{0,20}(?:Palandt|Staudinger|MünchKomm|Soergel|Bamberger/Roth|BeckOK)\s+.{5,100}?)(?:\n|$)",
+    ]
+    
+    # 9. RECHTSPRECHUNGSZITATE und LITERATURVERWEISE
+    citation_patterns = [
+        # Rechtsprechung
+        re.compile(r"(?:^|\n)(.{0,30}(?:BGH|BVerfG|BAG|BSG|BFH|BVerwG|OLG|LG|AG)\s+.{10,200}?)(?:\n|$)", re.MULTILINE),
+        # Literatur
+        re.compile(r"(?:^|\n)(.{0,30}(?:in|siehe|vgl\.)\s+.{5,50},\s+.{10,200}?)(?:\n|$)", re.MULTILINE | re.IGNORECASE),
+    ]
+    
+    # 10. ARGUMENTATIONS- UND BEGRÜNDUNGSMUSTER
+    argumentation_patterns = [
+        # Argumentative Wendungen
+        r"(?:^|\n)([Dd]afür\s+spricht\s+(?:zunächst|insbesondere|vor\s+allem)?\s*,?\s+dass\s+.{5,100}?)(?:\.|$)",
+        r"(?:^|\n)([Dd]agegen\s+spricht\s+(?:jedoch|allerdings|aber)?\s*,?\s+dass\s+.{5,100}?)(?:\.|$)",
+        r"(?:^|\n)([Zz]udem\s+(?:ist\s+zu\s+bedenken|spricht)\s*,?\s+dass\s+.{5,100}?)(?:\.|$)",
+        
+        # Begründungsstrukturen
+        r"(?:^|\n)([Dd]ies\s+(?:folgt\s+aus|ergibt\s+sich\s+aus|resultiert\s+aus)\s+.{5,100}?)(?:\.|$)",
+        r"(?:^|\n)([Dd]er\s+Grund\s+(?:dafür\s+)?(?:ist|liegt\s+darin)\s*,?\s+dass\s+.{5,100}?)(?:\.|$)",
+    ]
+    
+    # 11. PROZESSRECHTLICHE STRUKTUREN
+    procedural_patterns = [
+        # Verfahrensarten
+        r"(?:^|\n)([Ii]m\s+(?:Erkenntnisverfahren|Vollstreckungsverfahren|einstweiligen\s+Rechtsschutzverfahren)\s+.{5,100}?)(?:\n|$)",
+        r"(?:^|\n)([Dd]ie\s+(?:Klage|Berufung|Revision|Beschwerde)\s+ist\s+.{5,100}?)(?:\n|$)",
+        
+        # Prozessvoraussetzungen
+        r"(?:^|\n)([Dd]ie\s+Zuständigkeit\s+.{5,100}?)(?:\n|$)",
+        r"(?:^|\n)([Dd]ie\s+Partei-\s+und\s+Prozessfähigkeit\s+.{5,100}?)(?:\n|$)",
+    ]
+    
+    # 12. RECHTSGEBIETSSPEZIFISCHE SEGMENTIERUNG
+    subject_specific_patterns = {
+        'zivilrecht': [
+            r"(?:^|\n)([Ee]in\s+Anspruch\s+(?:des\s+)?[A-Z]\s+gegen\s+[A-Z]\s+.{5,100}?)(?:\n|$)",
+            r"(?:^|\n)([Dd]er\s+Kaufvertrag\s+zwischen\s+.{5,100}?)(?:\n|$)",
+            r"(?:^|\n)([Dd]ie\s+Willenserklärung\s+.{5,100}?)(?:\n|$)",
+        ],
+        'strafrecht': [
+            r"(?:^|\n)([A-Z]\s+(?:könnte\s+sich|hat\s+sich)\s+(?:wegen|nach)\s+§\s*\d+\s+.{5,100}?)(?:\n|$)",
+            r"(?:^|\n)([Dd]er\s+objektive\s+Tatbestand\s+.{5,100}?)(?:\n|$)",
+            r"(?:^|\n)([Dd]er\s+subjektive\s+Tatbestand\s+.{5,100}?)(?:\n|$)",
+        ],
+        'verwaltungsrecht': [
+            r"(?:^|\n)([Dd]er\s+Verwaltungsakt\s+.{5,100}?)(?:\n|$)",
+            r"(?:^|\n)([Dd]ie\s+Ermächtigungsgrundlage\s+.{5,100}?)(?:\n|$)",
+            r"(?:^|\n)([Dd]as\s+Ermessen\s+.{5,100}?)(?:\n|$)",
+        ]
+    }
+    
+    # 13. NOTARIELLE STRUKTUREN
+    notarial_patterns = [
+        # Beurkundungsstrukturen
+        r"(?:^|\n)([Dd]ie\s+notarielle\s+Beurkundung\s+.{5,100}?)(?:\n|$)",
+        r"(?:^|\n)([Dd]ie\s+Belehrungspflicht\s+.{5,100}?)(?:\n|$)",
+        r"(?:^|\n)([Dd]ie\s+Mitwirkungspflicht\s+.{5,100}?)(?:\n|$)",
+        
+        # Testamentstrukturen
+        r"(?:^|\n)([Dd]as\s+Testament\s+vom\s+.{5,100}?)(?:\n|$)",
+        r"(?:^|\n)([Dd]ie\s+Testierfähigkeit\s+.{5,100}?)(?:\n|$)",
+        r"(?:^|\n)([Dd]ie\s+Erbfolge\s+.{5,100}?)(?:\n|$)",
+    ]
+    
+    # ---- INTELLIGENTES PATTERN-MATCHING mit PRIORITÄTSHIERARCHIE ----
+    
+    def apply_patterns_with_priority(text, pattern_groups):
+        """Wendet Pattern-Gruppen mit Prioritätshierarchie an"""
+        matches = []
+        priorities = {
+            'primary_structure': 10,
+            'numbered_structure': 9,
+            'legal_standard': 8,
+            'law_references': 7,
+            'legal_phrases': 6,
+            'gutachtenstil': 5,
+            'examination': 4,
+            'content_based': 3,
+            'citations': 2,
+            'argumentation': 1
+        }
+        
+        for pattern_name, patterns in pattern_groups.items():
+            priority = priorities.get(pattern_name, 0)
+            if isinstance(patterns, list):
+                for pattern in patterns:
+                    if isinstance(pattern, str):
+                        pattern = re.compile(pattern, re.MULTILINE | re.IGNORECASE)
+                    for match in pattern.finditer(text):
+                        matches.append((match.start(), match.end(), match.groups(), priority, pattern_name))
+            else:
+                if isinstance(patterns, str):
+                    patterns = re.compile(patterns, re.MULTILINE | re.IGNORECASE)
+                for match in patterns.finditer(text):
+                    matches.append((match.start(), match.end(), match.groups(), priority, pattern_name))
+        
+        return matches
+    
+    # ---- HAUPTSEGMENTIERUNGS-ALGORITHMUS ----
+    
+    # 1. Sammle alle Pattern-Matches
+    pattern_groups = {
+        'primary_structure': primary_structure_patterns,
+        'numbered_structure': numbered_structure_patterns,
+        'legal_standard': legal_standard_headers,
+        'law_references': law_reference_patterns,
+        'legal_phrases': legal_phrase_patterns,
+        'gutachtenstil': gutachtenstil_patterns,
+        'examination': examination_patterns,
+        'content_based': content_based_patterns,
+        'citations': citation_patterns,
+        'argumentation': argumentation_patterns,
+    }
+    
+    all_matches = apply_patterns_with_priority(text_content, pattern_groups)
+    
+    # 2. Filtere überlappende Matches (höhere Priorität gewinnt)
+    filtered_matches = []
+    all_matches.sort(key=lambda x: (x[0], -x[3]))  # Sortiere nach Position, dann nach Priorität (absteigend)
+    
+    for i, match in enumerate(all_matches):
+        start, end, groups, priority, pattern_name = match
+        
+        # Prüfe auf Überlappungen mit bereits akzeptierten Matches
+        overlaps = False
+        for existing_match in filtered_matches:
+            ex_start, ex_end = existing_match[0], existing_match[1]
+            if not (end <= ex_start or start >= ex_end):  # Überlappung gefunden
+                overlaps = True
+                break
+        
+        if not overlaps:
+            filtered_matches.append(match)
+    
+    # 3. Sortiere finale Matches nach Position
+    filtered_matches.sort(key=lambda x: x[0])
+    
+    # 4. Erstelle Segmente
+    if filtered_matches:
+        last_end = 0
+        
+        # Füge Einleitung hinzu falls substanziell
+        if filtered_matches[0][0] > 100:
+            intro_text = text_content[:filtered_matches[0][0]].strip()
+            if intro_text and len(intro_text) > 50:
+                sections.append(("Einleitung", intro_text))
+                last_end = filtered_matches[0][0]
+        
+        for i, (start, end, groups, priority, pattern_name) in enumerate(filtered_matches):
+            # Bestimme Überschrift basierend auf Pattern-Typ und Match
+            heading = improve_heading(groups, pattern_name, text_content[start:end])
             
-            for i, marker_text in enumerate(headings_markers):
-                section_content_full = parts[i+1]
-                potential_title_line = section_content_full.lstrip().split('\n', 1)[0].strip()
-                current_heading_text = marker_text.strip()
-                
-                if potential_title_line and len(potential_title_line) < 100 and not potential_title_line.endswith('.'):
-                    current_heading_text = f"{marker_text.strip()} {potential_title_line}"
-                    if section_content_full.lstrip().startswith(potential_title_line):
-                        section_content_full = section_content_full.lstrip()[len(potential_title_line):]
-                
-                final_section_content = section_content_full.strip()
-                if final_section_content:
-                    sections.append((current_heading_text, final_section_content))
+            # Bestimme Content-Ende
+            if i + 1 < len(filtered_matches):
+                content_end = filtered_matches[i + 1][0]
+            else:
+                content_end = len(text_content)
+            
+            content_start = end
+            content = text_content[content_start:content_end].strip()
+            
+            if content and len(content) > 30:
+                sections.append((heading, content))
+    
+    # 5. ERWEITERTE NACHBEARBEITUNG
+    sections = post_process_segments(sections, text_content)
+    
+    # Fallback: Wenn keine Segmentierung erfolgreich war
+    if not sections and text_content.strip():
+        # Verwende semantische Fallback-Segmentierung
+        return semantic_fallback_segmentation(text_content)
+    
+    return sections if sections else [("Vollständiger Text", text_content.strip())]
 
-        # Wenn keine nummerierten Überschriften gefunden wurden, versuche Schlüsselwörter
-        if not sections:
-            kw_matches = list(keyword_heading_pattern.finditer(text_content))
-            
-            if kw_matches:
-                # Es wurden Schlüsselwörter gefunden
-                current_pos = 0
-                if kw_matches[0].start() > 0:
-                    intro_text = text_content[current_pos:kw_matches[0].start()].strip()
-                    if intro_text and len(intro_text) > 50:
-                        sections.append(("Einleitung", intro_text))
-                
-                for i, match in enumerate(kw_matches):
-                    heading_text_kw = match.group(1).strip() 
-                    content_start_kw = match.end()
-                    if i + 1 < len(kw_matches):
-                        content_end_kw = kw_matches[i+1].start()
-                    else:
-                        content_end_kw = len(text_content)
-                    section_content_kw = text_content[content_start_kw:content_end_kw].strip()
-                    
-                    # Verbesserte Intelligente Validierung: Prüft, ob der Abschnitt sinnvoll ist
-                    # indem Mindestlänge, Satzmuster und unvollständige Abschnittsübergänge geprüft werden
-                    is_valid_section = (
-                        len(section_content_kw) > 50 and  # Mindestlänge
-                        section_content_kw.count('. ') > 2 and  # Enthält vollständige Sätze
-                        not (section_content_kw.strip().startswith('§') and len(section_content_kw.split('\n', 1)[0]) < 100)  # Kein Gesetzestext-Beginn
-                    )
-                    
-                    if section_content_kw and is_valid_section: 
-                        # Inhaltlich passendere Überschrift wählen
-                        section_content_lower = section_content_kw.lower()
-                        if heading_text_kw.lower() == "beurteilung" and "rechtliche würdigung" in section_content_lower:
-                            heading_text_kw = "Rechtliche Würdigung"
-                        elif heading_text_kw.lower() == "frage" and "rechtsfrage" in section_content_lower:
-                            heading_text_kw = "Rechtsfrage"
-                            
-                        sections.append((heading_text_kw, section_content_kw))
-            
-            # Suche nach juristischen Spezifikationsmustern
-            if not sections:
-                spec_matches = list(specification_pattern.finditer(text_content))
-                
-                if spec_matches and len(spec_matches) >= 1:
-                    current_pos = 0
-                    if spec_matches[0].start() > 0:
-                        intro_text = text_content[current_pos:spec_matches[0].start()].strip()
-                        if intro_text and len(intro_text) > 50:
-                            sections.append(("Einleitung", intro_text))
-                    
-                    for i, match in enumerate(spec_matches):
-                        spec_text = match.group(0).strip()
-                        spec_prefix = match.group(1).strip()
-                        content_start = match.start()
-                        
-                        # Finde das Ende dieses Abschnitts
-                        if i + 1 < len(spec_matches):
-                            content_end = spec_matches[i+1].start()
-                        else:
-                            content_end = len(text_content)
-                            
-                        paragraph_text = text_content[content_start:content_end].strip()
-                        
-                        if paragraph_text and len(paragraph_text) > 50:
-                            heading = f"Spezifikation: {spec_text[:50]}..." if len(spec_text) > 50 else f"Spezifikation: {spec_text}"
-                            sections.append((heading, paragraph_text))
-                            
-            # Als letzten Versuch: Überprüfe auf Gesetzesverweise
-            if not sections:
-                law_refs = list(law_reference_pattern.finditer(text_content))
-                
-                if law_refs and len(law_refs) >= 2:  # Mindestens 2 Verweise, damit eine sinnvolle Aufteilung möglich ist
-                    current_pos = 0
-                    if law_refs[0].start() > 50:  # Einleitung ist substantiell
-                        intro_text = text_content[current_pos:law_refs[0].start()].strip()
-                        if intro_text:
-                            sections.append(("Einleitung", intro_text))
-                    
-                    for i, match in enumerate(law_refs):
-                        law_ref = match.group(0).strip()
-                        content_start = match.start()
-                        
-                        # Finde das Ende dieses Abschnitts (nächster Verweis oder Ende des Textes)
-                        if i + 1 < len(law_refs):
-                            content_end = law_refs[i+1].start()
-                        else:
-                            content_end = len(text_content)
-                            
-                        # Extrahiere den vollständigen Absatz, der mit dem Gesetzesverweis beginnt
-                        paragraph_text = text_content[content_start:content_end].strip()
-                        
-                        if paragraph_text and len(paragraph_text) > 50:  # Nur sinnvolle Absätze hinzufügen
-                            heading = f"Abschnitt zu {law_ref}"
-                            sections.append((heading, paragraph_text))
+
+def improve_heading(groups, pattern_name, matched_text):
+    """
+    Verbessert Überschriften basierend auf Kontext und Pattern-Typ.
+    Nutzt 60 Jahre Anwaltspraxis für optimale Bezeichnungen.
+    """
+    if not groups:
+        return "Abschnitt"
     
-    # Nachbearbeitung: Entferne leere Abschnitte und führe kleinere zusammen
-    sections = [(h, c) for h, c in sections if c.strip()]
+    heading = groups[0] if groups[0] else "Abschnitt"
     
-    # Wenn sehr kurze Abschnitte (< 200 Zeichen) vorhanden sind, versuche diese mit benachbarten zu verbinden
-    if sections and any(len(c) < 200 for _, c in sections):
-        merged_sections = []
-        i = 0
-        while i < len(sections):
-            heading, content = sections[i]
+    # Kontextbasierte Verbesserungen
+    if pattern_name == 'primary_structure':
+        if len(groups) > 1 and groups[1]:
+            return f"{groups[0].strip()} {groups[1].strip()}"
+        return heading.strip()
+    
+    elif pattern_name == 'legal_standard':
+        # Juristische Standard-Überschriften normalisieren
+        heading_lower = heading.lower()
+        if 'sachverhalt' in heading_lower:
+            return "Sachverhalt"
+        elif any(word in heading_lower for word in ['frage', 'rechtsfrage']):
+            return "Rechtsfrage"
+        elif any(word in heading_lower for word in ['würdigung', 'beurteilung']):
+            return "Rechtliche Würdigung"
+        elif 'ergebnis' in heading_lower:
+            return "Ergebnis"
+        elif any(word in heading_lower for word in ['subsumtion', 'anwendung']):
+            return "Subsumtion"
+        elif any(word in heading_lower for word in ['zulässigkeit', 'prozessvoraussetzungen']):
+            return "Zulässigkeit"
+        elif 'begründetheit' in heading_lower:
+            return "Begründetheit"
+    
+    elif pattern_name == 'law_references':
+        # Gesetzesverweise aufwerten
+        return f"Prüfung nach {heading.strip()}"
+    
+    elif pattern_name == 'legal_phrases':
+        # Juristische Wendungen verkürzen
+        if len(heading) > 50:
+            return f"Prüfung: {heading[:47]}..."
+        return f"Prüfung: {heading}"
+    
+    elif pattern_name == 'gutachtenstil':
+        # Gutachtenstil-Elemente
+        heading_lower = heading.lower()
+        if 'obersatz' in heading_lower:
+            return "Obersatz"
+        elif 'untersatz' in heading_lower:
+            return "Untersatz"
+        elif 'schlusssatz' in heading_lower:
+            return "Schlusssatz"
+    
+    return heading.strip()
+
+
+def post_process_segments(sections, original_text):
+    """
+    Erweiterte Nachbearbeitung der Segmente mit anwaltlicher Expertise.
+    """
+    if not sections:
+        return sections
+    
+    # 1. Entferne leere oder zu kurze Segmente
+    sections = [(h, c) for h, c in sections if c.strip() and len(c.strip()) > 30]
+    
+    # 2. Füge sehr kurze Segmente mit thematisch ähnlichen zusammen
+    merged_sections = []
+    i = 0
+    while i < len(sections):
+        heading, content = sections[i]
+        
+        # Wenn Segment kurz ist, prüfe Zusammenführung
+        if len(content) < 200 and i + 1 < len(sections):
+            next_heading, next_content = sections[i + 1]
             
-            # Wenn der Abschnitt kurz ist und nicht der letzte, versuche ihn mit dem nächsten zu verbinden
-            if len(content) < 200 and i < len(sections) - 1:
-                next_heading, next_content = sections[i+1]
-                merged_heading = f"{heading} + {next_heading}"
+            # Prüfe thematische Ähnlichkeit
+            if should_merge_segments(heading, content, next_heading, next_content):
+                merged_heading = f"{heading} - {next_heading}"
                 merged_content = f"{content}\n\n{next_content}"
                 merged_sections.append((merged_heading, merged_content))
-                i += 2  # Überspringe den nächsten Abschnitt, da er bereits zusammengeführt wurde
-            else:
-                merged_sections.append((heading, content))
-                i += 1
-        
-        sections = merged_sections
-    
-    # Optimierung: Wenn wir viele kurze Abschnitte (> 5 Abschnitte mit < 300 Zeichen),
-    # versuche, eine intelligentere Zusammenführung basierend auf thematischer Ähnlichkeit
-    short_sections = [(i, (h, c)) for i, (h, c) in enumerate(sections) if len(c) < 300]
-    if len(short_sections) > 5 and len(short_sections) > len(sections) * 0.4:  # Wenn > 40% der Abschnitte kurz sind
-        temp_sections = sections.copy()
-        merged = set()  # Halte bereits zusammengeführte Indizes
-        
-        for i, (h1, c1) in short_sections:
-            if i in merged:
+                i += 2
                 continue
-                
-            # Suche nach dem nächsten thematisch ähnlichen Abschnitt
-            for j, (h2, c2) in short_sections:
-                if i != j and j not in merged and j > i:
-                    # Einfache Heuristik für thematische Ähnlichkeit: Gemeinsame Wörter in Überschriften
-                    h1_words = set(h1.lower().split())
-                    h2_words = set(h2.lower().split())
-                    common_words = h1_words.intersection(h2_words)
-                    
-                    if common_words or (len(h1_words) > 0 and len(h2_words) > 0 and 
-                                      (h1_words.issubset(h2_words) or h2_words.issubset(h1_words))):
-                        merged_heading = f"{h1} + {h2}"
-                        merged_content = f"{c1}\n\n{c2}"
-                        temp_sections[i] = (merged_heading, merged_content)
-                        merged.add(j)
-                        break
         
-        # Erstelle die endgültige Liste ohne die zusammengeführten Abschnitte
-        final_sections = [section for i, section in enumerate(temp_sections) if i not in merged]
-        if len(final_sections) < len(sections):  # Nur wenn wir tatsächlich Zusammenführungen vorgenommen haben
-            sections = final_sections
+        merged_sections.append((heading, content))
+        i += 1
     
-    # Verbesserte Inhaltserkennung: Identifiziere juristische Inhaltsmuster für genauere Überschriften
-    for i, (heading, content) in enumerate(sections):
-        content_lower = content.lower()
-        if "sachverhalt" in heading.lower():
-            # Typ bleibt "Sachverhalt"
-            pass
-        elif ("rechtsfrage" in content_lower or "gutachtenfrage" in content_lower) and "frage" in heading.lower():
-            sections[i] = ("Rechtsfrage", content)
-        elif "rechtslage" in content_lower and not "rechtslage" in heading.lower():
-            sections[i] = ("Rechtslage", content)
-        elif ("subsumtion" in content_lower or "tatbestandsmerkmal" in content_lower) and not any(x in heading.lower() for x in ["subsumtion", "tatbestand"]):
-            sections[i] = ("Subsumtion", content)
-        elif "ergebnis" in content_lower[:300] and not "ergebnis" in heading.lower() and len(content) < 1000:
-            sections[i] = ("Ergebnis", content)
-        elif "gutachten" in heading.lower() and ("sachverhalt" in content_lower[:500] or "rechtsfrage" in content_lower[:500]):
-            sections[i] = ("Gutachten (mit Sachverhalt)", content)
+    # 3. Verbessere Überschriften basierend auf Inhalt
+    improved_sections = []
+    for heading, content in merged_sections:
+        improved_heading = enhance_heading_by_content(heading, content)
+        improved_sections.append((improved_heading, content))
     
-    return sections
+    return improved_sections
+
+
+def should_merge_segments(h1, c1, h2, c2):
+    """Entscheidet ob zwei Segmente zusammengeführt werden sollen"""
+    # Thematische Schlüsselwörter
+    legal_keywords = {
+        'sachverhalt': ['sachverhalt', 'tatsachen', 'fall', 'vorgang'],
+        'rechtsfrage': ['frage', 'problem', 'streitig', 'umstritten'],
+        'würdigung': ['würdigung', 'beurteilung', 'bewertung', 'prüfung'],
+        'subsumtion': ['subsumtion', 'anwendung', 'tatbestand', 'merkmal'],
+        'ergebnis': ['ergebnis', 'fazit', 'zusammenfassung', 'schluss']
+    }
+    
+    h1_lower, h2_lower = h1.lower(), h2.lower()
+    c1_lower, c2_lower = c1.lower(), c2.lower()
+    
+    # Prüfe thematische Übereinstimmung
+    for theme, keywords in legal_keywords.items():
+        h1_match = any(kw in h1_lower for kw in keywords)
+        h2_match = any(kw in h2_lower for kw in keywords)
+        c1_match = any(kw in c1_lower[:200] for kw in keywords)
+        c2_match = any(kw in c2_lower[:200] for kw in keywords)
+        
+        if (h1_match and h2_match) or (h1_match and c2_match) or (c1_match and h2_match):
+            return True
+    
+    return False
+
+
+def enhance_heading_by_content(heading, content):
+    """Verbessert Überschriften basierend auf Inhaltsanalyse"""
+    content_lower = content.lower()
+    content_start = content_lower[:300]
+    
+    # Spezifische Verbesserungen basierend auf Inhalt
+    if 'sachverhalt' in content_start and 'sachverhalt' not in heading.lower():
+        return "Sachverhalt"
+    elif any(phrase in content_start for phrase in ['fraglich ist', 'zu prüfen', 'problematisch']) and 'frage' not in heading.lower():
+        return "Rechtsfrage" 
+    elif any(phrase in content_start for phrase in ['im ergebnis', 'zusammenfassend', 'demnach']) and 'ergebnis' not in heading.lower():
+        return "Ergebnis"
+    elif any(phrase in content_start for phrase in ['subsumtion', 'tatbestandsmerkmal', 'voraussetzungen sind']) and 'subsumtion' not in heading.lower():
+        return "Subsumtion"
+    elif any(phrase in content_start for phrase in ['nach § ', 'gemäß § ', 'anwendung des §']) and 'rechtslage' not in heading.lower():
+        return "Rechtslage"
+    
+    return heading
+
+
+def semantic_fallback_segmentation(text_content):
+    """
+    Fallback-Segmentierung wenn alle Pattern-Methoden versagen.
+    Nutzt einfache semantische Analyse.
+    """
+    # Teile in Absätze
+    paragraphs = [p.strip() for p in text_content.split('\n\n') if p.strip()]
+    
+    if len(paragraphs) <= 1:
+        return [("Vollständiger Text", text_content.strip())]
+    
+    # Gruppiere Absätze in sinnvolle Segmente
+    segments = []
+    current_segment = []
+    current_heading = "Abschnitt 1"
+    segment_count = 1
+    
+    for i, paragraph in enumerate(paragraphs):
+        current_segment.append(paragraph)
+        
+        # Prüfe ob neues Segment beginnen sollte
+        if (len('\n\n'.join(current_segment)) > 800 and 
+            i + 1 < len(paragraphs) and 
+            len(current_segment) >= 2):
+            
+            segments.append((current_heading, '\n\n'.join(current_segment)))
+            current_segment = []
+            segment_count += 1
+            current_heading = f"Abschnitt {segment_count}"
+    
+    # Letztes Segment hinzufügen
+    if current_segment:
+        segments.append((current_heading, '\n\n'.join(current_segment)))
+    
+    return segments if segments else [("Vollständiger Text", text_content.strip())]
 
 def prepare_data_for_training(input_file_path, token_limit_millions):
     """
@@ -480,9 +888,7 @@ def prepare_data_for_training(input_file_path, token_limit_millions):
     if "_prepared" in base or "_segmented" in base:
         print(f"{Colors.WARNING}Warning: Input file '{input_file_path}' seems to be an already processed file. {Colors.ENDC}")
         print("This script should ideally run on the output of 'jsonl_converter.py'.")
-        base = base.replace("_prepared", "").replace("_segmented", "")
-
-    # Handle token limit - for "max" (infinity), use a special suffix
+        base = base.replace("_prepared", "").replace("_segmented", "")    # Handle token limit - for "max" (infinity), use a special suffix
     is_unlimited = math.isinf(token_limit_millions)
     if is_unlimited:
         token_suffix_for_filename = "_max"
@@ -490,8 +896,16 @@ def prepare_data_for_training(input_file_path, token_limit_millions):
     else:
         token_suffix_for_filename = format_token_limit_for_filename(token_limit_millions)
         actual_max_tokens = int(token_limit_millions * 1_000_000)
-        
-    output_file_path = base + token_suffix_for_filename + "_segmented_prepared.jsonl"
+    
+    # Erstelle organisierten Ausgabepfad in Fine_Tuning-Ordner
+    base_filename = os.path.basename(base)
+    database_dir = os.path.dirname(os.path.dirname(input_file_path))  # Gehe vom Scripts-Ordner zum Database-Ordner
+    fine_tuning_dir = os.path.join(database_dir, "Database", "Fine_Tuning")
+    
+    # Stelle sicher, dass der Fine_Tuning Ordner existiert
+    os.makedirs(fine_tuning_dir, exist_ok=True)
+    
+    output_file_path = os.path.join(fine_tuning_dir, f"{base_filename}{token_suffix_for_filename}_segmented_prepared.jsonl")
 
     # Counters and flags initialization
     processed_gutachten_count = 0

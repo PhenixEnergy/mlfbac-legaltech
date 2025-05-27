@@ -714,8 +714,35 @@ def enhanced_segment_text(text_content):
     if not text_content or not text_content.strip():
         return []
     
-    # Importiere die bestehende Segmentierungsfunktion
-    from segment_and_prepare_training_data import segment_text as basic_segment_text
+    # Verwende lokale Segmentierung, um zirkuläre Importe zu vermeiden
+    def fallback_segment_text(text):
+        """Einfache Fallback-Segmentierung ohne zirkuläre Importe"""
+        paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
+        
+        if len(paragraphs) <= 1:
+            return [("Vollständiger Text", text.strip())]
+        
+        segments = []
+        current_segment = []
+        current_heading = "Abschnitt 1"
+        segment_count = 1
+        
+        for i, paragraph in enumerate(paragraphs):
+            current_segment.append(paragraph)
+            
+            if (len('\n\n'.join(current_segment)) > 800 and 
+                i + 1 < len(paragraphs) and 
+                len(current_segment) >= 2):
+                
+                segments.append((current_heading, '\n\n'.join(current_segment)))
+                current_segment = []
+                segment_count += 1
+                current_heading = f"Abschnitt {segment_count}"
+        
+        if current_segment:
+            segments.append((current_heading, '\n\n'.join(current_segment)))
+        
+        return segments if segments else [("Vollständiger Text", text.strip())]
     
     # Juristische Schlüsselwörter für die Klassifizierung von Segmenten
     legal_keywords = {
@@ -751,9 +778,8 @@ def enhanced_segment_text(text_content):
                        "gesetzliche grundlage", "rechtsgrundlage", "nach der vorschrift", "gesetzesmaterialien",
                        "rechtsnorm", "normtext", "wortlaut der vorschrift", "gesetzestext"]
     }
-    
-    # Versuche zuerst, mit der vorhandenen Segmentierungslogik zu arbeiten
-    basic_segments = basic_segment_text(text_content)
+      # Versuche zuerst, mit der vorhandenen Segmentierungslogik zu arbeiten
+    basic_segments = fallback_segment_text(text_content)
     
     # Prüfe, ob die grundlegende Segmentierung brauchbare Ergebnisse liefert
     if basic_segments and len(basic_segments) > 1:
