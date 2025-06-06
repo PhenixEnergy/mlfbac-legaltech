@@ -1,4 +1,0 @@
-2025-06-06 08:41:02,117 - INFO - validate_dataset:211 - Datei: test_converted.jsonl
-2025-06-06 08:41:02,117 - INFO - validate_dataset:212 - Validierungsstufe: standard
-2025-06-06 08:41:02,430 - INFO - validate_dataset:308 - Gesamtscore: 0.150
-2025-06-06 08:41:02,430 - INFO - validate_dataset:309 - Status: FEHLGESCHLAGEN
