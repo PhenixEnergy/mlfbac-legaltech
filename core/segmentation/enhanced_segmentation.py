@@ -20,10 +20,36 @@ from typing import Dict, List, Tuple, Optional, NamedTuple
 from dataclasses import dataclass, field
 from enum import Enum
 import json
+import sys
+import os
 from collections import defaultdict, Counter
 import math
 
-from optimized_prompt_generation import OptimizedPromptGenerator, LegalTextType, PromptComplexity, PromptContext
+# Add the rag module to the path so we can import optimized_prompt_generation
+rag_path = os.path.join(os.path.dirname(__file__), '..', 'rag')
+sys.path.insert(0, rag_path)
+
+# Try to import the required classes
+try:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "optimized_prompt_generation", 
+        os.path.join(rag_path, "optimized_prompt_generation.py")
+    )
+    optimized_prompt_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(optimized_prompt_module)
+    
+    OptimizedPromptGenerator = optimized_prompt_module.OptimizedPromptGenerator
+    LegalTextType = optimized_prompt_module.LegalTextType
+    PromptComplexity = optimized_prompt_module.PromptComplexity
+    PromptContext = optimized_prompt_module.PromptContext
+except Exception as e:
+    # Fallback if the import fails
+    print(f"Warning: Could not import optimized_prompt_generation module: {e}")
+    OptimizedPromptGenerator = None
+    LegalTextType = None
+    PromptComplexity = None
+    PromptContext = None
 
 logger = logging.getLogger(__name__)
 

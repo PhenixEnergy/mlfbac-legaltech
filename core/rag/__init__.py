@@ -1,11 +1,15 @@
 """
 RAG (Retrieval-Augmented Generation) Module
 ==========================================
-
-This module handles RAG training data preparation and prompt generation
-for the LegalTech NLP Pipeline.
 """
 
-from .prepare_rag_training_data import *
-from .prepare_rag_training_data_fixed import *
-from .optimized_prompt_generation import *
+# RAG module exports
+try:
+    from .optimized_prompt_generation import OptimizedPromptGenerator
+    from .prepare_rag_training_data_fixed import prepare_rag_training_data
+except ImportError as e:
+    print(f"Warning: Could not import RAG modules: {e}")
+    OptimizedPromptGenerator = None
+    prepare_rag_training_data = None
+
+__all__ = ['OptimizedPromptGenerator', 'prepare_rag_training_data']
