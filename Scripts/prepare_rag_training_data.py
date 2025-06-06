@@ -2,20 +2,24 @@
 RAG (Retrieval-Augmented Generation) Training Data Preparation for Legal Texts
 ==============================================================================
 
-KORRIGIERTE VERSION - Arbeitet mit ChatML-Struktur der segmentierten Daten
+ERWEITERTE VERSION v3.0 - Umfassende RAG-Training-Optimierung
+
+Neue Features:
+- Multi-Strategy Query Generation
+- Quality-Based Filtering
+- Adaptive Context Selection
+- Performance Monitoring
+- Batch Processing Support
+- Advanced Error Handling
 
 Dieses Skript bereitet juristische Gutachten speziell für RAG-Training vor, indem es:
-1. Wissensbasis (Knowledge Base) für Retrieval erstellt
-2. Training Queries mit Context-Passage Paaren generiert
-3. RAG-spezifische Prompt-Strukturen entwickelt
+1. Hochqualitative Knowledge Base für Retrieval erstellt
+2. Diverse Training Queries mit optimierten Context-Passage Paaren generiert
+3. RAG-spezifische Prompt-Strukturen mit Qualitätsbewertung entwickelt
+4. Performance-Metriken für Training-Optimierung bereitstellt
 
-Version 2.0 - Mai 2025
-Speziell entwickelt für RAG-Training mit deutschen Rechtsgutachten
-
-RAG-Architektur:
-- Retriever: Findet relevante Dokumentenabschnitte
-- Generator: Erzeugt Antworten basierend auf abgerufenen Kontexten
-- Training: Query + Retrieved Context → Generated Answer
+Version 3.0 - Mai 2025
+Optimiert für deutsches Rechtssystem und RAG-Architekturen
 """
 
 import json
@@ -498,16 +502,11 @@ def prepare_rag_training_data(input_file_path, output_options=None):
             
             print(f"{Colors.OKGREEN}✓ {generated_queries} RAG-Trainingsbeispiele generiert{Colors.ENDC}")
         
-        # Schreibe Ausgabedateien in organisierte Ordnerstruktur
-        base_filename = os.path.splitext(os.path.basename(input_file_path))[0]
-        database_dir = os.path.dirname(os.path.dirname(input_file_path))  # Gehe vom Fine_Tuning-Ordner zum Database-Ordner
-        rag_training_dir = os.path.join(database_dir, "RAG_Training")
-        
-        # Stelle sicher, dass der RAG_Training Ordner existiert
-        os.makedirs(rag_training_dir, exist_ok=True)
+        # Schreibe Ausgabedateien
+        base_path = os.path.splitext(input_file_path)[0]
         
         # Knowledge Base
-        kb_output_path = os.path.join(rag_training_dir, f"{base_filename}_rag_knowledge_base.jsonl")
+        kb_output_path = f"{base_path}_rag_knowledge_base.jsonl"
         print(f"{Colors.OKBLUE}💾 Schreibe Knowledge Base nach: {kb_output_path}{Colors.ENDC}")
         
         with open(kb_output_path, 'w', encoding='utf-8') as f:
@@ -518,7 +517,7 @@ def prepare_rag_training_data(input_file_path, output_options=None):
         
         # RAG Training Data (falls nicht nur Knowledge Base)
         if not output_options.get("knowledge_base_only", False):
-            training_output_path = os.path.join(rag_training_dir, f"{base_filename}_rag_training.jsonl")
+            training_output_path = f"{base_path}_rag_training.jsonl"
             print(f"{Colors.OKBLUE}💾 Schreibe RAG Training Data nach: {training_output_path}{Colors.ENDC}")
             
             with open(training_output_path, 'w', encoding='utf-8') as f:
