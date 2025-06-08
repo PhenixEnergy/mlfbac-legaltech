@@ -1,0 +1,203 @@
+# Datenbank-Konfiguration für ChromaDB und andere Storage
+
+# ChromaDB Einstellungen
+chromadb:
+  # Client-Konfiguration
+  client:
+    path: "./data/vectordb"
+    host: null  # Für lokale Persistierung auf null setzen
+    port: null
+    ssl: false
+    headers: {}
+    
+  # Collection-Einstellungen
+  collections:
+    # Haupt-Collection für Gutachten
+    gutachten:
+      name: "dnoti_gutachten"
+      metadata:
+        description: "dnoti Rechtsgutachten mit semantischen Embeddings"
+        version: "1.0"
+        embedding_model: "ibm-granite/granite-embedding-278m-multilingual"
+        chunk_strategy: "hierarchical_semantic"
+      distance_function: "cosine"  # cosine, l2, ip
+      
+    # Collection für Metadaten
+    metadata:
+      name: "gutachten_metadata"
+      metadata:
+        description: "Strukturierte Metadaten der Gutachten"
+        version: "1.0"
+      
+  # Embedding-Funktionen
+  embedding_functions:
+    default:
+      model_name: "ibm-granite/granite-embedding-278m-multilingual"
+      normalize: true
+      
+  # Performance-Optimierungen
+  performance:
+    batch_size: 100
+    max_batch_size: 1000
+    enable_hnsw: true
+    hnsw_config:
+      M: 16
+      ef_construction: 200
+      ef_search: 50
+    
+# Daten-Pipeline Konfiguration
+data_pipeline:
+  # Input-Verarbeitung
+  input:
+    source_file: "./Database/Original/dnoti_all.json"
+    encoding: "utf-8"
+    validation:
+      required_fields: ["id", "text", "gutachten_nummer"]
+      skip_invalid: true
+      
+  # Output-Verzeichnisse
+  output:
+    processed_data: "./data/processed"
+    embeddings: "./data/embeddings" 
+    cache: "./data/cache"
+    logs: "./data/logs"
+    
+  # Batch-Verarbeitung
+  batch_processing:
+    enable: true
+    batch_size: 50
+    max_concurrent_batches: 2
+    resume_on_failure: true
+    checkpoint_interval: 100
+
+# Metadaten-Schema
+metadata_schema:
+  # Pflichtfelder
+  required:
+    - id
+    - gutachten_nummer
+    - text
+    - chunk_id
+    - embedding_model
+    - created_at
+    
+  # Optionale Felder
+  optional:
+    - erscheinungsdatum
+    - rechtsbezug
+    - normen
+    - url
+    - text_length
+    - chunk_index
+    - section_type
+    - legal_entities
+    - keywords
+    - relevance_score
+    
+  # Datentypen
+  types:
+    id: "integer"
+    gutachten_nummer: "string"
+    text: "string" 
+    chunk_id: "string"
+    erscheinungsdatum: "date"
+    rechtsbezug: "string"
+    normen: "list"
+    text_length: "integer"
+    chunk_index: "integer"
+    relevance_score: "float"
+
+# Backup und Wiederherstellung
+backup:
+  enable: true
+  schedule: "daily"  # daily, weekly, monthly
+  retention: 30  # Tage
+  location: "./backups"
+  compress: true
+  
+  # Automatische Backups
+  auto_backup:
+    before_reindex: true
+    before_major_changes: true
+    
+# Indexing-Strategien
+indexing:
+  # Vollständige Neuindexierung
+  full_reindex:
+    chunk_size: 1000
+    parallel_workers: 2
+    memory_limit: "8GB"
+    
+  # Inkrementelle Updates
+  incremental:
+    enable: true
+    detect_changes: true
+    batch_size: 100
+    
+  # Index-Optimierung
+  optimization:
+    enable: true
+    schedule: "weekly"
+    vacuum_threshold: 0.1
+    compact_threshold: 0.3
+
+# Monitoring und Logging
+monitoring:
+  # Database Health
+  health_checks:
+    enable: true
+    interval: 300  # Sekunden
+    check_disk_space: true
+    check_memory_usage: true
+    check_response_time: true
+    
+  # Metriken
+  metrics:
+    collection_size: true
+    query_performance: true
+    index_efficiency: true
+    storage_usage: true
+    
+  # Alerting
+  alerts:
+    disk_usage_threshold: 0.9
+    memory_usage_threshold: 0.8
+    slow_query_threshold: 1.0  # Sekunden
+    
+# Sicherheit
+security:
+  # Zugriffskontrolle
+  access_control:
+    enable_auth: false  # Für lokale Entwicklung
+    api_key_required: false
+    
+  # Daten-Schutz
+  data_protection:
+    encrypt_at_rest: false
+    encrypt_in_transit: false
+    anonymize_logs: true
+    
+# Development & Testing
+development:
+  # Test-Datenbank
+  test_db:
+    path: "./data/test_vectordb"
+    sample_size: 1000  # Anzahl Gutachten für Tests
+    reset_on_start: true
+    
+  # Debug-Modi
+  debug:
+    log_queries: true
+    log_embeddings: false
+    save_intermediate_results: true
+    
+# Migration und Upgrades
+migration:
+  # Schema-Upgrades
+  auto_migrate: true
+  backup_before_migration: true
+  
+  # Daten-Migration
+  batch_migration: true
+  migration_batch_size: 500
+  verify_migration: true

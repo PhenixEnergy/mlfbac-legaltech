@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Was besagt Artikel 1 des Grundgesetzes?",
+    "answer": "Artikel 1 GG besagt: 'Die Würde des Menschen ist unantastbar. Sie zu achten und zu schützen ist Verpflichtung aller staatlichen Gewalt.' Dies ist der fundamentale Grundsatz des deutschen Verfassungsrechts.",
+    "context_docs": ["doc_001"]
+  },
+  {
+    "question": "Wie kommt ein Vertrag zustande?",
+    "answer": "Ein Vertrag kommt durch zwei übereinstimmende Willenserklärungen zustande: Angebot und Annahme. Dies folgt aus dem deutschen Zivilrecht im BGB.",
+    "context_docs": ["doc_002"]
+  },
+  {
+    "question": "Was ist der Aufbau einer Straftat?",
+    "answer": "Eine Straftat hat drei Merkmale: 1. Tatbestandsmäßigkeit, 2. Rechtswidrigkeit, 3. Schuld. Alle drei Merkmale müssen erfüllt sein, damit eine Straftat vorliegt.",
+    "context_docs": ["doc_003"]
+  },
+  {
+    "question": "Welche Kündigungsgründe gibt es nach dem KSchG?",
+    "answer": "Nach § 1 KSchG gibt es drei Kündigungsgründe: personenbedingte Kündigung (z.B. Krankheit), verhaltensbedingte Kündigung (z.B. Pflichtverletzung) und betriebsbedingte Kündigung (z.B. Stellenabbau).",
+    "context_docs": ["doc_004"]
+  },
+  {
+    "question": "Was sind Ermessensfehler im Verwaltungsrecht?",
+    "answer": "Ermessensfehler sind: Ermessensunterschreitung (kein Ermessen ausgeübt), Ermessensüberschreitung (gesetzliche Grenzen überschritten) und Ermessensfehlgebrauch (sachfremde Erwägungen).",
+    "context_docs": ["doc_005"]
+  }
+]

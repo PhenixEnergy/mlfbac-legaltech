@@ -1,0 +1,86 @@
+# Modell-Konfigurationen für Legal Tech Semantic Search
+
+# Embedding-Modelle
+embedding:
+  primary_model:
+    name: "ibm-granite/granite-embedding-278m-multilingual"
+    dimension: 768
+    max_sequence_length: 512
+    batch_size: 32
+    device: "auto"  # auto, cpu, cuda
+    trust_remote_code: false
+    cache_dir: "./models/embeddings"
+    
+  backup_model:
+    name: "snowflake/snowflake-arctic-embed-l-v2.0" 
+    dimension: 1024
+    max_sequence_length: 512
+    batch_size: 16
+    device: "auto"
+    
+  # Sentence-Transformers Einstellungen
+  sentence_transformers:
+    normalize_embeddings: true
+    convert_to_tensor: true
+    show_progress_bar: true
+
+# Generatives Modell (LM Studio Integration)
+generation:
+  # Primäres Modell
+  primary:
+    model_name: "deepseek-coder-v2-lite-16b-q8"
+    base_url: "http://localhost:1234/v1"
+    api_key: "lm-studio"  # Default für LM Studio
+    max_tokens: 1000
+    temperature: 0.1
+    top_p: 0.9
+    top_k: 40
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+    timeout: 30
+    
+  # Fallback-Modell (kleiner)
+  fallback:
+    model_name: "phi-3-mini-4k-instruct"
+    base_url: "http://localhost:1234/v1"
+    api_key: "lm-studio"
+    max_tokens: 800
+    temperature: 0.2
+    
+  # Modell-Auswahllogik
+  selection:
+    complexity_threshold: 0.7  # Ab diesem Wert wird primary verwendet
+    gpu_memory_threshold: 8.0  # GB VRAM erforderlich für primary
+    fallback_on_error: true
+    max_retries: 3
+
+# Performance-Optimierungen
+performance:
+  # Caching
+  enable_model_cache: true
+  cache_ttl: 3600  # Sekunden
+  max_cache_size: "2GB"
+  
+  # Parallelisierung
+  max_concurrent_requests: 4
+  embedding_batch_size: 32
+  
+  # Memory Management
+  enable_memory_optimization: true
+  max_memory_usage: "16GB"
+  gc_threshold: 0.8
+
+# Logging und Monitoring
+monitoring:
+  log_level: "INFO"
+  enable_metrics: true
+  metrics_port: 8080
+  
+  # Performance Tracking
+  track_inference_time: true
+  track_memory_usage: true
+  track_gpu_usage: true
+  
+  # Model Comparison
+  enable_model_comparison: false
+  comparison_sample_rate: 0.1

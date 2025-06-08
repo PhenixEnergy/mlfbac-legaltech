@@ -1,0 +1,173 @@
+# Chunking-Konfiguration für dnoti Gutachten
+
+# Hierarchisches Chunking Setup
+hierarchy:
+  enable: true
+  levels: 3
+  
+  # Level 1: Strukturelle Segmentierung
+  level_1:
+    method: "structure_based"
+    patterns:
+      sachverhalt: ["I\\. Sachverhalt", "Sachverhalt:", "1\\. Sachverhalt"]
+      fragen: ["II\\. Frage[n]?", "Frage[n]?:", "2\\. Frage[n]?"]
+      rechtslage: ["III\\. Zur Rechtslage", "Rechtslage:", "3\\. Zur Rechtslage"]
+      ergebnis: ["IV\\. Ergebnis", "Ergebnis:", "4\\. Ergebnis", "Zusammenfassung"]
+    max_section_size: 8000
+    min_section_size: 500
+    preserve_structure: true
+    
+  # Level 2: Semantic Chunking
+  level_2:
+    method: "semantic_similarity"
+    chunk_size: 800
+    chunk_overlap: 100
+    similarity_threshold: 0.7
+    min_chunk_size: 200
+    max_chunk_size: 1200
+    
+    # Semantic Chunking Parameter
+    sentence_splitter:
+      model: "de_core_news_sm"  # spaCy German model
+      use_embeddings: true
+      embedding_model: "paraphrase-multilingual-MiniLM-L12-v2"
+      
+    # Überlappungs-Strategie
+    overlap_strategy:
+      method: "sentence_based"  # sentence_based, token_based, semantic_based
+      preserve_legal_references: true
+      preserve_citations: true
+      
+  # Level 3: Query-adaptive Selektion
+  level_3:
+    method: "query_adaptive"
+    max_output_tokens: 1000
+    relevance_threshold: 0.6
+    diversity_factor: 0.3  # Verhindert zu ähnliche Chunks
+    
+    # Adaptive Strategien
+    strategies:
+      keyword_matching:
+        enable: true
+        weight: 0.3
+        legal_terms_boost: 2.0
+      
+      semantic_similarity:
+        enable: true
+        weight: 0.5
+        
+      temporal_relevance:
+        enable: true
+        weight: 0.2
+        recent_bias: 0.1
+
+# Preprocessing
+preprocessing:
+  # Text-Cleaning
+  clean_text:
+    remove_extra_whitespace: true
+    normalize_unicode: true
+    remove_footnote_markers: false  # Legal texts need footnotes
+    preserve_legal_formatting: true
+    
+  # Rechtsspezifische Verarbeitung
+  legal_processing:
+    preserve_paragraph_numbers: true
+    preserve_article_numbers: true
+    normalize_legal_citations: true
+    extract_legal_norms: true
+    
+    # Juristische Entitäten
+    legal_entities:
+      - "BGB"
+      - "ZPO" 
+      - "GBO"
+      - "WEG"
+      - "EuErbVO"
+      - "GmbHG"
+      - "AktG"
+      - "HGB"
+      
+  # Metadaten-Extraktion
+  metadata_extraction:
+    enable: true
+    extract_gutachten_nummer: true
+    extract_rechtsbezug: true
+    extract_normen: true
+    extract_erscheinungsdatum: true
+    extract_keywords: true
+
+# Qualitätskontrolle
+quality_control:
+  # Chunk-Validierung
+  validation:
+    min_meaningful_words: 10
+    max_repetition_ratio: 0.3
+    min_sentence_count: 2
+    check_legal_coherence: true
+    
+  # Chunk-Scoring
+  scoring:
+    legal_content_score: true
+    information_density: true
+    citation_density: true
+    structural_importance: true
+    
+  # Filtering
+  filters:
+    remove_boilerplate: true
+    remove_navigation_text: true
+    minimum_legal_relevance: 0.3
+
+# Experimentelle Features
+experimental:
+  # Multi-level Summarization
+  summarization:
+    enable: false
+    model: "facebook/bart-large-cnn"
+    max_summary_length: 200
+    
+  # Keyword-Enhanced Chunking
+  keyword_enhancement:
+    enable: true
+    legal_keyword_boost: 2.0
+    extract_key_phrases: true
+    
+  # Cross-reference Detection
+  cross_references:
+    enable: true
+    detect_internal_references: true
+    link_related_chunks: true
+
+# Performance-Tuning
+performance:
+  # Parallelisierung
+  parallel_processing: true
+  max_workers: 4
+  chunk_batch_size: 100
+  
+  # Caching
+  cache_embeddings: true
+  cache_preprocessed: true
+  cache_directory: "./data/cache"
+  
+  # Memory Management
+  max_memory_per_document: "500MB"
+  enable_gc: true
+  
+# Debugging und Evaluation
+debug:
+  enable_logging: true
+  log_chunk_statistics: true
+  save_intermediate_results: false
+  visualize_chunks: false
+  
+evaluation:
+  # Chunk-Qualität
+  measure_coherence: true
+  measure_information_retention: true
+  measure_overlap_quality: true
+  
+  # Performance-Metriken
+  measure_processing_time: true
+  measure_memory_usage: true

@@ -1,0 +1,57 @@
+[
+  {
+    "id": "doc_001",
+    "title": "Grundrechte und Verfassungsrecht",
+    "content": "Das Grundgesetz der Bundesrepublik Deutschland garantiert fundamentale Grundrechte. Artikel 1 GG besagt: Die Würde des Menschen ist unantastbar. Sie zu achten und zu schützen ist Verpflichtung aller staatlichen Gewalt. Das deutsche Volk bekennt sich darum zu unverletzlichen und unveräußerlichen Menschenrechten als Grundlage jeder menschlichen Gemeinschaft, des Friedens und der Gerechtigkeit in der Welt.\n\nDie Grundrechte sind unmittelbar geltendes Recht und binden Gesetzgebung, vollziehende Gewalt und Rechtsprechung. Besonders wichtig sind die Gleichheitsgrundsätze nach Artikel 3 GG sowie die Meinungsfreiheit nach Artikel 5 GG.",
+    "metadata": {
+      "domain": "Verfassungsrecht",
+      "date": "2024-01-15",
+      "author": "Bundesverfassungsgericht",
+      "tags": ["Grundrechte", "Verfassung", "Menschenwürde"]
+    }
+  },
+  {
+    "id": "doc_002",
+    "title": "Vertragsrecht und Schuldverhältnisse",
+    "content": "Das deutsche Zivilrecht regelt Verträge und Schuldverhältnisse im Bürgerlichen Gesetzbuch (BGB). Ein Vertrag kommt durch zwei übereinstimmende Willenserklärungen (Angebot und Annahme) zustande.\n\nWichtige Grundsätze:\n- Vertragsfreiheit (§ 311 BGB)\n- Pacta sunt servanda (Verträge müssen eingehalten werden)\n- Treu und Glauben (§ 242 BGB)\n\nBei Pflichtverletzungen kann Schadensersatz verlangt werden (§§ 280 ff. BGB). Auch ein Rücktritt vom Vertrag ist unter bestimmten Voraussetzungen möglich (§§ 323 ff. BGB).",
+    "metadata": {
+      "domain": "Zivilrecht",
+      "date": "2024-01-20",
+      "author": "BGH",
+      "tags": ["Vertragsrecht", "BGB", "Schuldrecht"]
+    }
+  },
+  {
+    "id": "doc_003",
+    "title": "Strafrecht Allgemeiner Teil",
+    "content": "Das deutsche Strafrecht folgt dem Grundsatz \"nulla poena sine lege\" - keine Strafe ohne Gesetz. Dieser Grundsatz ist in Art. 103 Abs. 2 GG verankert.\n\nAufbau einer Straftat:\n1. Tatbestandsmäßigkeit\n2. Rechtswidrigkeit\n3. Schuld\n\nEine Straftat liegt nur vor, wenn alle drei Merkmale erfüllt sind. Rechtfertigungsgründe wie Notwehr (§ 32 StGB) oder Notstand (§ 34 StGB) können die Rechtswidrigkeit ausschließen.\n\nSchuldausschließende Gründe sind beispielsweise Schuldunfähigkeit (§ 20 StGB) oder entschuldigender Notstand (§ 35 StGB).",
+    "metadata": {
+      "domain": "Strafrecht",
+      "date": "2024-01-25",
+      "author": "BGH Strafsenat",
+      "tags": ["Strafrecht", "Deliktsaufbau", "StGB"]
+    }
+  },
+  {
+    "id": "doc_004",
+    "title": "Arbeitsrecht und Kündigungsschutz",
+    "content": "Das deutsche Arbeitsrecht schützt Arbeitnehmer vor ungerechtfertigten Kündigungen. Das Kündigungsschutzgesetz (KSchG) gilt für Betriebe mit mehr als 10 Arbeitnehmern.\n\nKündigungsgründe nach § 1 KSchG:\n- Personenbedingte Kündigung (z.B. Krankheit)\n- Verhaltensbedingte Kündigung (z.B. Pflichtverletzung)\n- Betriebsbedingte Kündigung (z.B. Stellenabbau)\n\nEine Kündigung muss sozial gerechtfertigt sein. Bei betriebsbedingten Kündigungen ist eine Sozialauswahl erforderlich. Schwangere, Betriebsräte und Schwerbehinderte genießen besonderen Kündigungsschutz.",
+    "metadata": {
+      "domain": "Arbeitsrecht",
+      "date": "2024-02-01",
+      "author": "BAG",
+      "tags": ["Arbeitsrecht", "Kündigungsschutz", "KSchG"]
+    }
+  },
+  {
+    "id": "doc_005",
+    "title": "Verwaltungsrecht und Ermessen",
+    "content": "Das Verwaltungsrecht regelt die Tätigkeit der öffentlichen Verwaltung. Grundprinzipien sind Gesetzmäßigkeit der Verwaltung und Verhältnismäßigkeit.\n\nErmessen liegt vor, wenn das Gesetz der Behörde einen Entscheidungsspielraum einräumt. Dies wird oft durch Wörter wie \"kann\", \"darf\" oder \"soll\" ausgedrückt.\n\nErmessensfehler:\n- Ermessensunterschreitung (kein Ermessen ausgeübt)\n- Ermessensüberschreitung (gesetzliche Grenzen überschritten)\n- Ermessensfehlgebrauch (sachfremde Erwägungen)\n\nGegen fehlerhafte Verwaltungsakte kann Widerspruch eingelegt und Anfechtungsklage erhoben werden.",
+    "metadata": {
+      "domain": "Verwaltungsrecht",
+      "date": "2024-02-05",
+      "author": "BVerwG",
+      "tags": ["Verwaltungsrecht", "Ermessen", "Verwaltungsakt"]
+    }
+  }
+]

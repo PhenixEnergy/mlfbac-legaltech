@@ -1,0 +1,34 @@
+{
+  "fastapi": {
+    "name": "FastAPI Backend",
+    "command": ["python", "-m", "uvicorn", "src.api.main:app", "--reload", "--port", "8000", "--host", "0.0.0.0"],
+    "port": 8000,
+    "health_endpoint": "/health",
+    "required": true,
+    "startup_delay": 3,
+    "env_vars": {
+      "PYTHONPATH": ".",
+      "LOG_LEVEL": "INFO"
+    }
+  },
+  "streamlit": {
+    "name": "Streamlit Frontend",
+    "command": ["streamlit", "run", "streamlit_app.py", "--server.port", "8501", "--server.address", "0.0.0.0"],
+    "port": 8501,
+    "health_endpoint": "/",
+    "required": true,
+    "startup_delay": 5,
+    "env_vars": {
+      "PYTHONPATH": "."
+    }
+  },
+  "lm_studio": {
+    "name": "LM Studio (External)",
+    "command": [],
+    "port": 1234,
+    "health_endpoint": "/v1/models",
+    "required": false,
+    "startup_delay": 0,
+    "env_vars": {}
+  }
+}
