@@ -215,29 +215,45 @@ def render_search_results(results: Dict):
         return
     
     st.success(f"**{results['total_results']} Ergebnisse** gefunden in {results.get('search_time_ms', 0):.0f}ms")
-    
-    def extract_gutachten_info(content: str) -> Dict[str, str]:
-        """Extrahiert Gutachten-Informationen aus dem Content-Text"""
+      def extract_gutachten_info(result: Dict) -> Dict[str, str]:
+        """Extrahiert Gutachten-Informationen aus API-Result"""
         info = {}
-        lines = content.split('\n')
         
-        for line in lines[:5]:  # Erste 5 Zeilen für Metadaten
-            if line.startswith('Gutachten Nr.'):
-                info['gutachten_nummer'] = line.strip()
-            elif line.startswith('Rechtsbezug:'):
-                info['rechtsbezug'] = line.replace('Rechtsbezug:', '').strip()
-            elif line.startswith('Normen:'):
-                normen = line.replace('Normen:', '').strip()
-                info['normen'] = normen if normen else 'Keine spezifischen Normen angegeben'
+        # Versuche Metadaten aus der API-Antwort zu extrahieren
+        metadata = result.get("metadata", {})
+        
+        # 1. Gutachten-Nummer aus source_gutachten_id
+        source_id = metadata.get("source_gutachten_id", "")
+        if source_id:
+            info['gutachten_nummer'] = f"Gutachten Nr. {source_id}"
+        else:
+            info['gutachten_nummer'] = "N/A"
+        
+        # 2. Rechtsbezug - meist "National" bei DNOTI-Gutachten
+        info['rechtsbezug'] = "National"  # Default für DNOTI
+        
+        # 3. Normen aus legal_norms
+        legal_norms = metadata.get("legal_norms", [])
+        if legal_norms and isinstance(legal_norms, list) and len(legal_norms) > 0:
+            info['normen'] = "; ".join(legal_norms[:5])  # Max 5 Normen anzeigen
+        else:
+            # Fallback: Versuche aus Content zu extrahieren (für alte Daten)
+            content = result.get("content", "")
+            lines = content.split('\n')
+            for line in lines[:10]:  # Erste 10 Zeilen durchsuchen
+                if line.startswith('Normen:'):
+                    normen = line.replace('Normen:', '').strip()
+                    info['normen'] = normen if normen else 'Keine spezifischen Normen angegeben'
+                    break
+            else:
+                info['normen'] = 'Keine spezifischen Normen angegeben'
         
         return info
-    
-    # Ergebnisse anzeigen
+      # Ergebnisse anzeigen
     for i, result in enumerate(results.get("results", []), 1):
         with st.container():
-            # Content-Text extrahieren (API verwendet 'content', nicht 'text')
-            content = result.get("content", result.get("text", ""))
-            gutachten_info = extract_gutachten_info(content)
+            # Metadaten direkt aus API-Result extrahieren
+            gutachten_info = extract_gutachten_info(result)
             
             # Metadaten-Card
             st.markdown(f"""
@@ -248,6 +264,8 @@ def render_search_results(results: Dict):
                 <p style="color: #374151 !important;"><strong style="color: #1f2937 !important;">Normen:</strong> {gutachten_info.get('normen', 'N/A')}</p>
             </div>
             """, unsafe_allow_html=True)
+              # Content-Text für Anzeige extrahieren
+            content = result.get("content", result.get("text", ""))
             
             # Formatierter Text anzeigen
             formatted_content = format_gutachten_text(content)
@@ -283,12 +301,39 @@ def render_search_results(results: Dict):
                     {formatted_content}
                 </div>
                 """, unsafe_allow_html=True)
-            
-            # Metadaten
-            metadata = result.get("metadata", {})
-            if metadata:
-                with st.expander("🔍 Metadaten"):
-                    st.json(metadata)
+              # Metadaten anzeigen
+            api_metadata = result.get("metadata", {})
+            if api_metadata:
+                with st.expander("🔍 Detaillierte Metadaten"):
+                    # Strukturierte Anzeige der wichtigsten Metadaten
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        st.write("**Chunk-Informationen:**")
+                        st.write(f"• Chunk-ID: `{api_metadata.get('chunk_id', 'N/A')}`")
+                        st.write(f"• Abschnittstyp: {api_metadata.get('section_type', 'N/A')}")
+                        st.write(f"• Token-Anzahl: {api_metadata.get('token_count', 'N/A')}")
+                        
+                    with col2:
+                        st.write("**Bewertungen:**")
+                        st.write(f"• Ähnlichkeit: {api_metadata.get('semantic_score', result.get('similarity_score', 0)):.3f}")
+                        st.write(f"• Relevanz: {api_metadata.get('relevance_score', 0):.3f}")
+                    
+                    # Keywords anzeigen
+                    keywords = api_metadata.get('keywords', [])
+                    if keywords:
+                        st.write("**Schlüsselwörter:**")
+                        st.write(", ".join(keywords[:10]))  # Erste 10 Keywords
+                    
+                    # Legal Norms anzeigen
+                    legal_norms = api_metadata.get('legal_norms', [])
+                    if legal_norms:
+                        st.write("**Rechtsnormen:**")
+                        st.write(", ".join(legal_norms))
+                    
+                    # Vollständige Metadaten als JSON (für Debugging)
+                    with st.expander("🔧 Vollständige Metadaten (JSON)"):
+                        st.json(api_metadata)
             
             st.divider()
 
