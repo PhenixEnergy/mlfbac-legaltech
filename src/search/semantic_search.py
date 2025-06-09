@@ -244,7 +244,7 @@ class SemanticSearchEngine:
         self.query_processor = QueryProcessor()
         
         # Standard Collection Name
-        self.default_collection = "dnoti_gutachten_chunks"
+        self.default_collection = "dnoti_legal_documents"
         
         logger.info("Semantic Search Engine initialized")
     
@@ -252,7 +252,7 @@ class SemanticSearchEngine:
                     query: Union[str, SearchQuery] = None,
                     search_type: str = "hybrid", 
                     limit: int = 10,
-                    similarity_threshold: float = 0.6,
+                    similarity_threshold: float = 0.1,
                     filters: Optional[Dict[str, Any]] = None) -> SearchResponse:
         """
         Führt eine semantische Suche durch - async version for FastAPI

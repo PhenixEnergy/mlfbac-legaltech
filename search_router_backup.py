@@ -11,9 +11,7 @@ from datetime import datetime
 
 # Local imports
 from .models import (
-    SearchRequest, 
-    SearchResponse as APISearchResponse, 
-    SearchResult as APISearchResult, 
+    SearchRequest, SearchResponse, SearchResult, 
     BulkSearchRequest, BulkSearchResponse,
     AutocompleteRequest, AutocompleteResponse,
     ErrorResponse
@@ -27,9 +25,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/search", tags=["search"])
 
 
-def _convert_search_engine_to_api_result(engine_result):
+def _convert_search_engine_to_api_result(engine_result) -> SearchResult:
     """Convert search engine SearchResult to API SearchResult"""
-    from .models import ChunkMetadataResponse
+    from .models import SearchResult as APISearchResult, ChunkMetadataResponse
     
     # Create chunk metadata
     chunk_metadata = ChunkMetadataResponse(
@@ -58,6 +56,7 @@ def _convert_search_engine_to_api_result(engine_result):
 
 def _convert_search_engine_to_api_response(engine_response, request_query: str, search_time_ms: float):
     """Convert search engine SearchResponse to API SearchResponse"""
+    from .models import SearchResponse as APISearchResponse
     
     # Convert individual results
     api_results = [
@@ -76,13 +75,12 @@ def _convert_search_engine_to_api_response(engine_response, request_query: str, 
     )
 
 
-@router.post("/semantic", response_model=APISearchResponse)
+@router.post("/semantic", response_model=SearchResponse)
 async def semantic_search(
     request: SearchRequest,
     search_engine: SemanticSearchEngine = Depends(get_search_engine),
     db_client: ChromaDBClient = Depends(get_database_client)
-):
-    """
+):    """
     Semantische Suche in der Gutachten-Datenbank
     
     Unterstützt verschiedene Suchtypen:
@@ -106,7 +104,8 @@ async def semantic_search(
                 'date_to': request.date_to
             }
         )
-          # Ergebnisse sortieren
+        
+        # Ergebnisse sortieren
         if request.sort_by.value == "similarity":
             search_results.results.sort(key=lambda x: x.similarity_score, reverse=True)
         elif request.sort_by.value == "date":
@@ -166,7 +165,7 @@ async def bulk_search(
                     similarity_threshold=request.similarity_threshold
                 )
                 
-                results[query] = APISearchResponse(
+                results[query] = SearchResponse(
                     query=query,
                     total_results=len(search_results.results),
                     results=search_results.results,
@@ -238,7 +237,7 @@ async def autocomplete(
         )
 
 
-@router.get("/similar/{chunk_id}", response_model=APISearchResponse)
+@router.get("/similar/{chunk_id}", response_model=SearchResponse)
 async def find_similar_chunks(
     chunk_id: str,
     limit: int = Query(10, ge=1, le=50),
@@ -268,7 +267,7 @@ async def find_similar_chunks(
             similarity_threshold=similarity_threshold
         )
         
-        response = APISearchResponse(
+        response = SearchResponse(
             query=f"Ähnlich zu Chunk {chunk_id}",
             total_results=len(search_results.results),
             results=search_results.results,

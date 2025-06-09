@@ -95,6 +95,10 @@ class GraniteEmbeddingFunction:
         self.model = None  # Lazy loading
         logger.info(f"Initialized embedding function with model: {model_name}")
     
+    def name(self) -> str:
+        """Return the name of the embedding function for ChromaDB compatibility"""
+        return self.model_name
+    
     def _load_model(self):
         """Lazy load the model only when needed"""
         if self.model is None:
@@ -145,6 +149,18 @@ class ChromaDBClient:
     - Semantische Suche
     - Batch-Operationen für große Datenmengen
     """
+
+class ChromaDBClient:
+    """
+    ChromaDB Client für Legal Tech Vektordatenbank
+    
+    Funktionen:
+    - Verbindungsmanagement zu ChromaDB
+    - Collection-Management für Gutachten
+    - Chunk-Speicherung mit Metadaten
+    - Semantische Suche
+    - Batch-Operationen für große Datenmengen
+    """
     
     def __init__(self, config_path: Optional[Union[str, Path]] = None):
         """
@@ -161,6 +177,7 @@ class ChromaDBClient:
         # Client initialisieren
         self._init_client()
         self._init_embedding_function()
+        self._load_existing_collections()
         
     def _load_config(self, config_path: Optional[Union[str, Path]]) -> Dict:
         """Lädt Datenbank-Konfiguration"""
@@ -234,6 +251,36 @@ class ChromaDBClient:
             logger.error(f"Failed to initialize embedding function: {e}")
             raise
     
+    def _load_existing_collections(self):
+        """Lädt existierende Collections in das collections Dictionary"""
+        try:
+            existing_collections = self.client.list_collections()
+            for collection in existing_collections:
+                self.collections[collection.name] = collection
+            logger.info(f"Loaded {len(self.collections)} existing collections")
+        except Exception as e:
+            logger.warning(f"Could not load existing collections: {e}")
+
+    def _get_collection(self, collection_name: str) -> Any:
+        """
+        Holt eine Collection, lädt sie falls nötig
+        
+        Args:
+            collection_name: Name der Collection
+            
+        Returns:
+            Collection object
+        """
+        if collection_name not in self.collections:
+            try:
+                collection = self.client.get_collection(collection_name)
+                self.collections[collection_name] = collection
+                logger.info(f"Loaded collection: {collection_name}")
+            except Exception as e:
+                raise ValueError(f"Collection {collection_name} not found: {e}")
+        
+        return self.collections[collection_name]
+
     def create_collection(self, collection_name: str, reset_if_exists: bool = False) -> Any:
         """
         Erstellt oder lädt eine ChromaDB Collection
@@ -252,12 +299,16 @@ class ChromaDBClient:
                     logger.info(f"Deleted existing collection: {collection_name}")
                 except:
                     pass  # Collection existierte nicht
+              # Collection erstellen oder laden
+            collection_metadata = self.config.get('collections', {}).get(collection_name, {}).get('metadata', {})
+            # Ensure metadata is not empty for ChromaDB
+            if not collection_metadata:
+                collection_metadata = {"created_by": "legaltech_system"}
             
-            # Collection erstellen oder laden
             collection = self.client.get_or_create_collection(
                 name=collection_name,
                 embedding_function=self.embedding_function,
-                metadata=self.config.get('collections', {}).get(collection_name, {}).get('metadata', {})
+                metadata=collection_metadata
             )
             
             self.collections[collection_name] = collection
@@ -270,7 +321,7 @@ class ChromaDBClient:
             raise
     
     def add_chunks_to_collection(self, 
-                                collection_name: str, 
+                                                                collection_name: str, 
                                 chunks: List[TextChunk], 
                                 batch_size: int = 100) -> Dict[str, Any]:
         """
@@ -282,12 +333,11 @@ class ChromaDBClient:
             batch_size: Anzahl Chunks pro Batch
             
         Returns:
-            Statistiken über den Import
-        """
+            Statistiken über den Import        """
         if collection_name not in self.collections:
-            collection = self.create_collection(collection_name)
-        else:
-            collection = self.collections[collection_name]
+            raise ValueError(f"Collection {collection_name} not found")
+        
+        collection = self.collections[collection_name]
         
         stats = {
             'total_chunks': len(chunks),
@@ -392,14 +442,10 @@ class ChromaDBClient:
             collection_name: Name der Collection
             n_results: Anzahl gewünschter Ergebnisse
             filters: Optionale Metadaten-Filter
-            
-        Returns:
+              Returns:
             Suchergebnisse mit Chunks und Similarity Scores
         """
-        if collection_name not in self.collections:
-            raise ValueError(f"Collection {collection_name} not found")
-        
-        collection = self.collections[collection_name]
+        collection = self._get_collection(collection_name)
         
         try:
             # Semantische Suche durchführen
@@ -418,11 +464,20 @@ class ChromaDBClient:
             }
             
             if results['documents'] and results['documents'][0]:
-                for i in range(len(results['documents'][0])):
+                for i in range(len(results['documents'][0])):                    # Convert distance to similarity score
+                    # ChromaDB appears to be using squared euclidean distance or similar
+                    # For large distances, we use a decay function to map to 0-1 similarity range
+                    distance = results['distances'][0][i]
+                    
+                    # Use exponential decay to convert distance to similarity
+                    # This maps small distances to high similarity (close to 1.0)
+                    # and large distances to low similarity (close to 0.0)
+                    similarity_score = 1.0 / (1.0 + distance)
+                    
                     result_item = {
                         'text': results['documents'][0][i],
                         'metadata': results['metadatas'][0][i],
-                        'similarity_score': 1.0 - results['distances'][0][i],  # ChromaDB gibt Distanzen zurück
+                        'similarity_score': similarity_score,
                         'rank': i + 1
                     }
                     
@@ -464,13 +519,9 @@ class ChromaDBClient:
             filters: Metadaten-Filter (ChromaDB Where-Klausel)
             limit: Maximale Anzahl Ergebnisse
             
-        Returns:
-            Liste von gefilterten Chunks
+        Returns:        Liste von gefilterten Chunks
         """
-        if collection_name not in self.collections:
-            raise ValueError(f"Collection {collection_name} not found")
-        
-        collection = self.collections[collection_name]
+        collection = self._get_collection(collection_name)
         
         try:
             results = collection.get(
@@ -504,12 +555,8 @@ class ChromaDBClient:
             collection_name: Name der Collection
             
         Returns:
-            Statistiken über die Collection
-        """
-        if collection_name not in self.collections:
-            collection = self.create_collection(collection_name)
-        else:
-            collection = self.collections[collection_name]
+            Statistiken über die Collection        """
+        collection = self._get_collection(collection_name)
         
         try:
             total_count = collection.count()
@@ -608,13 +655,10 @@ class ChromaDBClient:
             backup_path: Pfad für das Backup
             
         Returns:
-            True wenn Backup erfolgreich
-        """
-        if collection_name not in self.collections:
-            raise ValueError(f"Collection {collection_name} not found")
+            True wenn Backup erfolgreich        """
+        collection = self._get_collection(collection_name)
         
         try:
-            collection = self.collections[collection_name]
             
             # Alle Daten aus der Collection exportieren
             all_data = collection.get(include=['documents', 'metadatas', 'embeddings'])

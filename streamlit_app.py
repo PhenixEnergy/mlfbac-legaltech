@@ -24,7 +24,7 @@ from typing import Dict, List, Optional
 import time
 
 # Konfiguration
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = "http://localhost:8001"
 PAGE_CONFIG = {
     "page_title": "Legal Tech Semantic Search",
     "page_icon": "⚖️",
@@ -81,12 +81,12 @@ def check_api_connection() -> bool:
 def search_documents(query: str, search_type: str = "semantic", limit: int = 10) -> Dict:
     """Führt Dokumentensuche über API durch."""
     try:
-        params = {
+        data = {
             "query": query,
             "search_type": search_type,
             "limit": limit
         }
-        response = requests.get(f"{API_BASE_URL}/api/v1/search", params=params, timeout=10)
+        response = requests.post(f"{API_BASE_URL}/search/semantic", json=data, timeout=10)
         if response.status_code == 200:
             return response.json()
         else:
@@ -101,7 +101,7 @@ def ask_question(question: str, context_limit: int = 5) -> Dict:
             "question": question,
             "context_limit": context_limit
         }
-        response = requests.post(f"{API_BASE_URL}/api/v1/qa/answer", json=data, timeout=15)
+        response = requests.post(f"{API_BASE_URL}/qa/answer", json=data, timeout=15)
         if response.status_code == 200:
             return response.json()
         else:
@@ -112,7 +112,7 @@ def ask_question(question: str, context_limit: int = 5) -> Dict:
 def get_admin_stats() -> Dict:
     """Ruft Admin-Statistiken ab."""
     try:
-        response = requests.get(f"{API_BASE_URL}/api/v1/admin/stats", timeout=10)
+        response = requests.get(f"{API_BASE_URL}/admin/stats", timeout=10)
         if response.status_code == 200:
             return response.json()
         else:

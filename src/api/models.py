@@ -70,7 +70,7 @@ class SearchRequest(BaseModel):
     query: str = Field(..., min_length=3, max_length=1000, description="Suchfrage")
     search_type: SearchType = Field(SearchType.HYBRID, description="Art der Suche")
     limit: int = Field(10, ge=1, le=100, description="Maximale Anzahl Ergebnisse")
-    similarity_threshold: float = Field(0.6, ge=0.0, le=1.0, description="Minimaler Ähnlichkeits-Score")
+    similarity_threshold: float = Field(0.1, ge=0.0, le=1.0, description="Minimaler Ähnlichkeits-Score")
     
     # Filter-Optionen
     legal_areas: Optional[List[str]] = Field(None, description="Filter nach Rechtsgebieten")
