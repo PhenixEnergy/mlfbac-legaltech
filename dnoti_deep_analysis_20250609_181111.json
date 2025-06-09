@@ -1,0 +1,347 @@
+{
+  "analyzed_at": "2025-06-09T18:10:57.284204",
+  "pages_analyzed": [
+    {
+      "url": "https://www.dnoti.de",
+      "title": "Startseite - DNotI",
+      "status": "success"
+    },
+    {
+      "url": "https://www.dnoti.de/gutachten/",
+      "title": "Gutachten - DNotI",
+      "status": "success"
+    },
+    {
+      "url": "https://www.dnoti.de/gutachten",
+      "title": "Gutachten - DNotI",
+      "status": "success"
+    }
+  ],
+  "gutachten_patterns": [
+    {
+      "url": "https://www.dnoti.de/gutachten/",
+      "text": "Gutachten",
+      "context": "main_page_link"
+    }
+  ],
+  "form_parameters": [
+    {
+      "form_index": 0,
+      "action": "/gutachten/",
+      "method": "post",
+      "inputs": [
+        {
+          "name": "tx_dnotionlineplusapi_expertises[page]",
+          "type": "hidden",
+          "value": "1",
+          "placeholder": "",
+          "required": false
+        },
+        {
+          "name": "tx_dnotionlineplusapi_expertises[searchTitle]",
+          "type": "text",
+          "value": "",
+          "placeholder": "Titel",
+          "required": false
+        },
+        {
+          "name": "tx_dnotionlineplusapi_expertises[searchText]",
+          "type": "text",
+          "value": "",
+          "placeholder": "Volltext",
+          "required": false
+        },
+        {
+          "name": "tx_dnotionlineplusapi_expertises[expertisesType]",
+          "type": "radio",
+          "value": "all",
+          "placeholder": "",
+          "required": false
+        },
+        {
+          "name": "tx_dnotionlineplusapi_expertises[expertisesType]",
+          "type": "radio",
+          "value": "dnotiReport",
+          "placeholder": "",
+          "required": false
+        },
+        {
+          "name": "tx_dnotionlineplusapi_expertises[reportYear]",
+          "type": "number",
+          "value": "",
+          "placeholder": "Jahrgang",
+          "required": false
+        },
+        {
+          "name": "tx_dnotionlineplusapi_expertises[reportPage]",
+          "type": "number",
+          "value": "",
+          "placeholder": "auf Seite",
+          "required": false
+        },
+        {
+          "name": "tx_dnotionlineplusapi_expertises[expertisesType]",
+          "type": "radio",
+          "value": "expertiseReference",
+          "placeholder": "",
+          "required": false
+        },
+        {
+          "name": "tx_dnotionlineplusapi_expertises[expertiseReference]",
+          "type": "text",
+          "value": "",
+          "placeholder": "Gutachten Nr.",
+          "required": false
+        }
+      ],
+      "selects": [],
+      "textareas": []
+    }
+  ],
+  "navigation_structure": {
+    "main_page": [
+      [
+        "https://www.dnoti.de/informationen/aktuelles/",
+        "Aktuelles"
+      ],
+      [
+        "https://www.dnoti.de/arbeitshilfen/gesellschaftsrecht/",
+        "Gesellschaftsrecht"
+      ],
+      [
+        "https://www.dnoti.de/arbeitshilfen/erbrecht/",
+        "Erbrecht"
+      ],
+      [
+        "https://www.dnoti.de/informationen/gesetzesmaterialien/",
+        "Gesetzesmaterialien"
+      ],
+      [
+        "https://www.dnoti.de/informationen/linksammlungen/notarlinks-international/",
+        "Notarlinks International"
+      ],
+      [
+        "https://www.dnoti.de/informationen/dnoti-podcast/",
+        "DNotI-Podcast"
+      ],
+      [
+        "https://www.dnoti.de/dnoti/team/geschaeftsfuehrung/",
+        "Geschäftsführung"
+      ],
+      [
+        "https://www.dnoti.de/arbeitshilfen/gesetzesmaterialien-externe-quellen/",
+        "Gesetzesmaterialien - externe Quellen"
+      ],
+      [
+        "https://www.dnoti.de/arbeitshilfen/berufsrecht-beurkundungsverfahren/",
+        "Berufsrecht - Beurkundungsverfahren"
+      ],
+      [
+        "https://www.dnoti.de/gutachten/",
+        "Gutachten"
+      ],
+      [
+        "https://www.dnoti.de/informationen/linksammlungen/notarlinks-national/",
+        "Notarlinks National"
+      ],
+      [
+        "https://www.dnoti.de/dnoti-report/",
+        "DNotI-Report"
+      ],
+      [
+        "https://www.dnoti.de/informationen/linksammlungen/notarorganisationen/",
+        "Notarorganisationen"
+      ],
+      [
+        "https://www.dnoti.de/arbeitshilfen/steuerrecht/",
+        "Steuerrecht"
+      ],
+      [
+        "https://www.dnoti.de/arbeitshilfen/immobilienrecht/",
+        "Immobilienrecht"
+      ],
+      [
+        "https://www.dnoti.de/informationen/veranstaltungen/",
+        "Veranstaltungen"
+      ],
+      [
+        "https://www.dnoti.de/informationen/wissenschaftlicher-beirat/",
+        "Wissenschaftlicher Beirat"
+      ],
+      [
+        "https://www.dnoti.de/dnoti/wir-ueber-uns/",
+        "DNotI"
+      ],
+      [
+        "https://www.dnoti.de/arbeitshilfen/ipr-und-auslaendisches-recht/",
+        "IPR und ausländisches Recht"
+      ],
+      [
+        "https://www.dnoti.de/arbeitshilfen/besteuerung-von-grundstuecksgeschaeften/",
+        "Besteuerung von Grundstücksgeschäften"
+      ],
+      [
+        "https://www.dnoti.de/entscheidungen/",
+        "Entscheidungen"
+      ],
+      [
+        "https://www.dnoti.de/informationen/linksammlungen/notarorganisationen/",
+        "Linksammlungen"
+      ],
+      [
+        "https://www.dnoti.de/dnoti/wir-ueber-uns/",
+        "Wir über uns"
+      ],
+      [
+        "https://www.dnoti.de/dnoti/taetigkeitsberichte/",
+        "Tätigkeitsberichte"
+      ],
+      [
+        "https://www.dnoti.de/informationen/dnoti-schriftenreihe/",
+        "DNotI-Schriftenreihe"
+      ],
+      [
+        "https://www.dnoti.de/dnoti/team/juristische-mitarbeiter/",
+        "Juristische Mitarbeiter"
+      ],
+      [
+        "https://www.dnoti.de/dnoti/ehemalige-mitarbeiter/",
+        "Ehemalige Mitarbeiter"
+      ],
+      [
+        "https://www.dnoti.de/dnoti/team/sonstige-mitarbeiter/",
+        "nicht-juristische Mitarbeiter"
+      ],
+      [
+        "https://www.dnoti.de",
+        "Zurück"
+      ],
+      [
+        "https://www.dnoti.de/kontakt/",
+        "Kontakt"
+      ],
+      [
+        "https://www.dnoti.de/informationen/aktuelles/",
+        "Informationen"
+      ],
+      [
+        "https://www.dnoti.de/arbeitshilfen/familienrecht/",
+        "Familienrecht"
+      ],
+      [
+        "https://www.dnoti.de/arbeitshilfen/uebersicht/",
+        "Übersicht"
+      ],
+      [
+        "https://www.dnoti.de/dnoti/team/geschaeftsfuehrung/",
+        "Team"
+      ],
+      [
+        "https://www.dnoti.de/arbeitshilfen/uebersicht/",
+        "Arbeitshilfen"
+      ]
+    ]
+  },
+  "content_types": [
+    {
+      "url": "https://www.dnoti.de/gutachten/",
+      "context": "gutachten_section",
+      "title": "Gutachten - DNotI",
+      "main_content_selectors": [
+        {
+          "selector": ".page-content",
+          "count": 1
+        },
+        {
+          "selector": ".result-list",
+          "count": 1
+        }
+      ],
+      "link_count": 45,
+      "form_count": 1,
+      "script_count": 6,
+      "css_classes": [
+        "mega-menu-first-link",
+        "mega-menu--inner",
+        "menu-item-label",
+        "mega-menu--column-last",
+        "text-upper",
+        "mega-menu--submenu",
+        "grey",
+        "mega-menu--column",
+        "page-wrapper",
+        "col-md-12",
+        "has-sub",
+        "navigations-container",
+        "next",
+        "page-content",
+        "container",
+        "nav-wrapper",
+        "header-inner",
+        "has-mega",
+        "col-md-4",
+        "logo"
+      ]
+    },
+    {
+      "url": "https://www.dnoti.de/gutachten",
+      "context": "gutachten_section",
+      "title": "Gutachten - DNotI",
+      "main_content_selectors": [
+        {
+          "selector": ".page-content",
+          "count": 1
+        },
+        {
+          "selector": ".result-list",
+          "count": 1
+        }
+      ],
+      "link_count": 45,
+      "form_count": 1,
+      "script_count": 6,
+      "css_classes": [
+        "mega-menu-first-link",
+        "mega-menu--inner",
+        "menu-item-label",
+        "mega-menu--column-last",
+        "text-upper",
+        "mega-menu--submenu",
+        "grey",
+        "mega-menu--column",
+        "page-wrapper",
+        "col-md-12",
+        "has-sub",
+        "navigations-container",
+        "next",
+        "page-content",
+        "container",
+        "nav-wrapper",
+        "header-inner",
+        "has-mega",
+        "col-md-4",
+        "logo"
+      ]
+    }
+  ],
+  "recommended_strategies": [
+    {
+      "priority": "MEDIUM",
+      "category": "Link Extraction",
+      "recommendation": "1 potentielle Gutachten-Links gefunden. Optimiere Extraktion.",
+      "implementation": "Verwende gefundene Selektoren für zielgerichtete Link-Extraktion."
+    },
+    {
+      "priority": "HIGH",
+      "category": "Form Submission",
+      "recommendation": "1 Formulare gefunden. Nutze für automatisierte Suchen.",
+      "implementation": "Implementiere POST-Requests mit gefundenen Form-Parametern für systematische Suche."
+    },
+    {
+      "priority": "MEDIUM",
+      "category": "Content Extraction",
+      "recommendation": "Seitenstrukturen analysiert. Optimiere Content-Selektoren.",
+      "implementation": "Verwende identifizierte CSS-Selektoren für präzise Content-Extraktion."
+    }
+  ]
+}

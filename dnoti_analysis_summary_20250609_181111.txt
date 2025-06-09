@@ -1,0 +1,29 @@
+DNOTI Deep Analysis - Summary Report
+==================================================
+
+Analyzed at: 2025-06-09T18:10:57.284204
+Pages analyzed: 3
+Gutachten links found: 1
+Forms found: 1
+
+Found Gutachten Links:
+-------------------------
+1. https://www.dnoti.de/gutachten/
+   Text: Gutachten
+   Context: main_page_link
+
+
+Recommendations:
+---------------
+1. [MEDIUM] Link Extraction
+   1 potentielle Gutachten-Links gefunden. Optimiere Extraktion.
+   Implementation: Verwende gefundene Selektoren für zielgerichtete Link-Extraktion.
+
+2. [HIGH] Form Submission
+   1 Formulare gefunden. Nutze für automatisierte Suchen.
+   Implementation: Implementiere POST-Requests mit gefundenen Form-Parametern für systematische Suche.
+
+3. [MEDIUM] Content Extraction
+   Seitenstrukturen analysiert. Optimiere Content-Selektoren.
+   Implementation: Verwende identifizierte CSS-Selektoren für präzise Content-Extraktion.
+
