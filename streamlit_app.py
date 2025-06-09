@@ -23,6 +23,7 @@ from datetime import datetime
 from typing import Dict, List, Optional
 import time
 import html
+import json
 
 # Konfiguration
 API_BASE_URL = "http://localhost:8000"
@@ -140,14 +141,25 @@ def check_api_connection() -> bool:
     except:
         return False
 
-def search_documents(query: str, search_type: str = "semantic", limit: int = 10) -> Dict:
+def search_documents(query: str, search_type: str = "semantic", limit: int = 10, 
+                    similarity_threshold: float = 0.1, filters: str = None) -> Dict:
     """Führt Dokumentensuche über API durch."""
     try:
         data = {
             "query": query,
             "search_type": search_type,
-            "limit": limit
+            "limit": limit,
+            "similarity_threshold": similarity_threshold
         }
+        
+        # Filter hinzufügen falls vorhanden
+        if filters:
+            try:
+                filter_dict = json.loads(filters)
+                data.update(filter_dict)
+            except json.JSONDecodeError:
+                pass  # Ignoriere ungültige JSON-Filter
+        
         response = requests.post(f"{API_BASE_URL}/search/semantic", json=data, timeout=10)
         if response.status_code == 200:
             return response.json()
@@ -361,12 +373,17 @@ def render_search_page():
         
         with col3:
             search_filters = st.text_input("Filter (JSON)", placeholder='{"legal_area": "civil"}')
-    
-    # Suche ausführen
+      # Suche ausführen
     if st.button("🔍 Suchen", type="primary", use_container_width=True) and query:
         with st.spinner("Suche läuft..."):
             start_time = time.time()
-            results = search_documents(query, search_type, limit)
+            results = search_documents(
+                query=query, 
+                search_type=search_type, 
+                limit=limit,
+                similarity_threshold=min_similarity,
+                filters=search_filters
+            )
             search_time = (time.time() - start_time) * 1000
             
             # Suchzeit hinzufügen
