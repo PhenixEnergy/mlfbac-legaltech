@@ -25,7 +25,7 @@ class SearchQuery:
     text: str
     filters: Dict[str, Any] = field(default_factory=dict)
     max_results: int = 10
-    min_similarity: float = 0.6
+    min_similarity: float = 0.1
     include_metadata: bool = True
     search_strategy: str = "hybrid"  # semantic, keyword, hybrid
     legal_context: Optional[str] = None  # Rechtlicher Kontext
@@ -166,8 +166,7 @@ class QueryProcessor:
                     'kann', 'könnte', 'soll', 'sollte', 'nach', 'unter', 'über', 'durch'}
         
         keywords = [word.lower() for word in words if word.lower() not in stopwords]
-        
-        # Duplikate entfernen und nach Häufigkeit sortieren
+          # Duplikate entfernen und nach Häufigkeit sortieren
         keyword_counts = {}
         for keyword in keywords:
             keyword_counts[keyword] = keyword_counts.get(keyword, 0) + 1
@@ -197,9 +196,10 @@ class QueryProcessor:
             filters['legal_norms'] = legal_norms_filter
         
         # Filter für Abschnittstypen basierend auf Konzepten
-        if analysis['legal_concepts']:
-            if 'schadensersatz' in analysis['legal_concepts']:
-                filters['section_type'] = 'rechtslage'
+        # DISABLED: Automatic section_type filters cause issues when metadata fields don't exist
+        # if analysis['legal_concepts']:
+        #     if 'schadensersatz' in analysis['legal_concepts']:
+        #         filters['section_type'] = 'rechtslage'
         
         return filters
     
@@ -283,7 +283,7 @@ class SemanticSearchEngine:
             # Override with API parameters if provided
             if limit != 10:  # Non-default value
                 search_query.max_results = limit
-            if similarity_threshold != 0.6:  # Non-default value
+            if similarity_threshold != 0.1:  # Non-default value
                 search_query.min_similarity = similarity_threshold
             if search_type != "hybrid":  # Non-default value
                 search_query.search_strategy = search_type

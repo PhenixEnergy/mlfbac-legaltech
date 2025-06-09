@@ -465,13 +465,12 @@ class ChromaDBClient:
             
             if results['documents'] and results['documents'][0]:
                 for i in range(len(results['documents'][0])):                    # Convert distance to similarity score
-                    # ChromaDB appears to be using squared euclidean distance or similar
-                    # For large distances, we use a decay function to map to 0-1 similarity range
+                    # ChromaDB uses squared euclidean distance for this model
+                    # Use decay function to convert distance to similarity [0,1]
                     distance = results['distances'][0][i]
                     
-                    # Use exponential decay to convert distance to similarity
-                    # This maps small distances to high similarity (close to 1.0)
-                    # and large distances to low similarity (close to 0.0)
+                    # Decay function: smaller distances = higher similarity
+                    # This gives reasonable scores: ~0.18 for distance 4.3
                     similarity_score = 1.0 / (1.0 + distance)
                     
                     result_item = {
@@ -1026,6 +1025,40 @@ class ChromaDBClient:
         except Exception as e:
             logger.error(f"Error getting performance metrics: {e}")
             return {}
+
+    def add_documents(self, 
+                     collection_name: str,
+                     documents: List[str],
+                     metadatas: List[Dict],
+                     ids: List[str]) -> bool:
+        """
+        Fügt Dokumente direkt zur Collection hinzu (für Auto-Update Service)
+        
+        Args:
+            collection_name: Name der Collection
+            documents: Liste der Dokumente-Texte  
+            metadatas: Liste der Metadaten
+            ids: Liste der IDs
+            
+        Returns:
+            True wenn erfolgreich
+        """
+        try:
+            collection = self._get_collection(collection_name)
+            
+            # Dokumente zur Collection hinzufügen
+            collection.add(
+                ids=ids,
+                documents=documents,
+                metadatas=metadatas
+            )
+            
+            logger.info(f"Successfully added {len(documents)} documents to collection {collection_name}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error adding documents to collection {collection_name}: {e}")
+            return False
 
 if __name__ == "__main__":
     # Test des ChromaDB Clients
