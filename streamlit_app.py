@@ -6,6 +6,14 @@ Benutzerfreundliche Oberfläche für Rechtsgutachten-Suche und -Analyse
 
 import streamlit as st
 
+# Konfiguration importieren
+try:
+    from src.config import config
+    API_BASE_URL = f"http://{config.API_HOST}:{config.API_PORT}"
+except ImportError:
+    # Fallback wenn Konfiguration nicht verfügbar
+    API_BASE_URL = "http://localhost:8000"
+
 # Fallback imports für bessere Fehlerbehandlung
 try:
     import requests
@@ -27,7 +35,6 @@ import json
 import re
 
 # Konfiguration
-API_BASE_URL = "http://localhost:8000"
 PAGE_CONFIG = {
     "page_title": "Legal Tech Semantic Search",
     "page_icon": "⚖️",

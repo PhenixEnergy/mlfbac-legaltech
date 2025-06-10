@@ -13,6 +13,12 @@ import time
 import yaml
 from pathlib import Path
 
+# Konfiguration importieren
+try:
+    from ..config import config
+except ImportError:
+    from src.config import config
+
 # Local imports
 from ..search.semantic_search import SearchResult, SearchResponse
 
@@ -22,10 +28,10 @@ logger = logging.getLogger(__name__)
 @dataclass
 class LLMConfig:
     """Konfiguration für LM Studio Client"""
-    base_url: str = "http://localhost:1234"
-    model_name: str = "deepseek-v2-lite-16b"
-    max_tokens: int = 1000
-    temperature: float = 0.1
+    base_url: str = config.LM_STUDIO_BASE_URL
+    model_name: str = config.LM_STUDIO_MODEL
+    max_tokens: int = config.LM_STUDIO_MAX_TOKENS
+    temperature: float = config.LM_STUDIO_TEMPERATURE
     top_p: float = 0.9
     stream: bool = False
     timeout: int = 30

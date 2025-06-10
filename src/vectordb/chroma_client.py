@@ -3,6 +3,9 @@ ChromaDB Client für dnoti Legal Tech Anwendung
 Implementiert Vektordatenbank-Operationen mit IBM Granite Embeddings
 """
 
+# Import der zentralen Konfiguration
+from ..config import config
+
 # Versuche ChromaDB zu importieren, verwende Mock falls nicht verfügbar
 try:
     import chromadb
@@ -173,8 +176,7 @@ class ChromaDBClient:
         self.client = None
         self.collections = {}
         self.embedding_function = None
-        
-        # Client initialisieren
+          # Client initialisieren
         self._init_client()
         self._init_embedding_function()
         self._load_existing_collections()
@@ -188,20 +190,19 @@ class ChromaDBClient:
             return self._get_default_config()
     
     def _get_default_config(self) -> Dict:
-        """Standard-Konfiguration für ChromaDB"""
+        """Standard-Konfiguration für ChromaDB basierend auf .env Variablen"""
         return {
             'chromadb': {
                 'host': 'localhost',
                 'port': 8000,
-                'persist_directory': './data/vectordb',
+                'persist_directory': config.CHROMA_PERSIST_DIRECTORY,
                 'settings': {
-                    'anonymized_telemetry': False,
-                    'allow_reset': True
+                    'anonymized_telemetry': config.CHROMA_ANONYMIZED_TELEMETRY,                'allow_reset': config.CHROMA_ALLOW_RESET
                 }
             },
             'collections': {
                 'gutachten_chunks': {
-                    'name': 'dnoti_gutachten_chunks',
+                    'name': config.CHROMA_COLLECTION_NAME,
                     'metadata': {
                         'description': 'Chunked legal documents from dnoti database',
                         'version': '1.0'
@@ -209,7 +210,7 @@ class ChromaDBClient:
                 }
             },
             'embedding': {
-                'model': 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2',
+                'model': config.EMBEDDING_MODEL,
                 'dimensions': 384
             }
         }

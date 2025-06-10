@@ -1,0 +1,56 @@
+{
+  "timestamp": "2025-06-10T20:52:26.269329",
+  "configuration": {
+    "database": {
+      "chroma_db_path": "./data/vectordb",
+      "chroma_collection_name": "legal_documents_v2",
+      "chroma_persist_directory": "./data/vectordb",
+      "chroma_batch_size": 1000
+    },
+    "llm": {
+      "base_url": "http://localhost:1234/v1",
+      "model": "deepseek-coder-v2-lite-16b-q8",
+      "max_tokens": 2000,
+      "temperature": 0.1
+    },
+    "embedding": {
+      "model": "ibm-granite/granite-embedding-278m-multilingual",
+      "batch_size": 32,
+      "device": "auto"
+    },
+    "api": {
+      "host": "0.0.0.0",
+      "port": 8000,
+      "debug": true
+    },
+    "application": {
+      "log_level": "INFO",
+      "development": true
+    }
+  },
+  "api_tests": {
+    "Health Check": {
+      "status": "failed",
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=5)"
+    },
+    "Admin Health": {
+      "status": "degraded",
+      "timestamp": "2025-06-10T20:52:36.942550",
+      "version": "1.0.0",
+      "database_status": "healthy",
+      "llm_status": "error",
+      "embedding_status": "healthy",
+      "uptime_seconds": 4.99764,
+      "memory_usage_mb": 18970.55859375
+    },
+    "API Docs": {
+      "status": "ok",
+      "status_code": 200
+    }
+  },
+  "streamlit_test": {
+    "status": "ok",
+    "status_code": 200
+  },
+  "path_validation": true
+}
