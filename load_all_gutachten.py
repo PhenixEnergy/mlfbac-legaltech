@@ -38,19 +38,19 @@ def load_all_gutachten():
     except ImportError as e:
         print(f"❌ ChromaDB import failed: {e}")
         return False
-    
-    # 3. Create ChromaDB client
+      # 3. Create ChromaDB client
     print("💾 Connecting to ChromaDB...")
     try:
-        chroma_path = "./chroma_db"
+        # Verwende neue Konfiguration
+        from src.config import config
+        chroma_path = config.CHROMA_PERSIST_DIRECTORY
         os.makedirs(chroma_path, exist_ok=True)
         client = chromadb.PersistentClient(path=chroma_path)
         print(f"✅ Connected to ChromaDB at: {os.path.abspath(chroma_path)}")
     except Exception as e:
         print(f"❌ ChromaDB connection failed: {e}")
         return False
-    
-    # 4. Recreate collection (delete old and create new)
+      # 4. Recreate collection (delete old and create new)
     print("🗑️ Removing old collection...")
     try:
         client.delete_collection("legal_documents")
@@ -60,8 +60,9 @@ def load_all_gutachten():
     
     print("📚 Creating new collection...")
     try:
-        # Use same embedding function as the system
-        embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
+        # Use our custom embedding function that handles sentence_transformers properly
+        from src.vectordb.chroma_client import GraniteEmbeddingFunction
+        embedding_fn = GraniteEmbeddingFunction(
             model_name="sentence-transformers/all-MiniLM-L6-v2"
         )
         
@@ -121,15 +122,15 @@ def load_all_gutachten():
                     'original_id': str(doc.get('id', '')),
                     'batch_number': i // batch_size + 1
                 }
-                
-                # Extract legal norms as list if possible
+                  # Extract legal norms as list if possible
                 normen_text = doc.get('normen', '')
                 if normen_text and normen_text != '':
                     # Split normen by common separators
                     legal_norms = [norm.strip() for norm in normen_text.replace(';', ',').split(',') if norm.strip()]
-                    metadata['legal_norms'] = legal_norms[:10]  # Limit to 10 norms
+                    # Convert list to comma-separated string for ChromaDB compatibility
+                    metadata['legal_norms'] = '; '.join(legal_norms[:10])  # Limit to 10 norms
                 else:
-                    metadata['legal_norms'] = []
+                    metadata['legal_norms'] = ''
                 
                 documents.append(content)
                 metadatas.append(metadata)

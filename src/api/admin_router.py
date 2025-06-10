@@ -88,7 +88,7 @@ async def get_database_statistics(
         for collection_name in collections:
             stats = db_client.get_collection_stats(collection_name)
             collection_stats[collection_name] = stats
-            total_chunks += stats.get('count', 0)
+            total_chunks += stats.get('total_chunks', 0)
         
         # Rechtsgebiete-Verteilung
         legal_areas = await db_client.get_legal_areas_distribution()
