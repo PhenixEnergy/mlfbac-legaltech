@@ -376,9 +376,9 @@ def render_search_results(results: Dict):
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
                 ">
                     {formatted_content}
-                </div>
-                """, unsafe_allow_html=True)
-              # Metadaten anzeigen
+                </div>                """, unsafe_allow_html=True)
+            
+            # Metadaten anzeigen
             api_metadata = result.get("metadata", {})
             if api_metadata:
                 with st.expander("🔍 Detaillierte Metadaten"):
@@ -407,10 +407,10 @@ def render_search_results(results: Dict):
                     if legal_norms:
                         st.write("**Rechtsnormen:**")
                         st.write(", ".join(legal_norms))
-                    
-                    # Vollständige Metadaten als JSON (für Debugging)
-                    with st.expander("🔧 Vollständige Metadaten (JSON)"):
-                        st.json(api_metadata)
+                
+                # Vollständige Metadaten als JSON (außerhalb des Expanders)
+                if st.button(f"🔧 Vollständige Metadaten anzeigen", key=f"metadata_{result.get('id', hash(str(result)))}"):
+                    st.json(api_metadata)
             
             st.divider()
 

@@ -34,8 +34,7 @@ async def health_check():
     """
     Umfassender Gesundheitscheck der API und aller Services
     """
-    try:
-        # Dependency-Status überprüfen
+    try:        # Dependency-Status überprüfen
         deps_status = get_health_check_dependencies()
         
         # Memory-Usage ermitteln
@@ -51,7 +50,7 @@ async def health_check():
         
         health = HealthCheck(
             status=overall_status,
-            timestamp=datetime.now(),
+            timestamp=datetime.now().isoformat(),
             database_status=deps_status.get('database', 'unknown'),
             llm_status=deps_status.get('llm', 'unknown'),
             embedding_status=deps_status.get('search_engine', 'unknown'),
