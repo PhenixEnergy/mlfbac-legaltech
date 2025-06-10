@@ -24,6 +24,7 @@ from typing import Dict, List, Optional
 import time
 import html
 import json
+import re
 
 # Konfiguration
 API_BASE_URL = "http://localhost:8000"
@@ -215,38 +216,114 @@ def render_search_results(results: Dict):
         return
     
     st.success(f"**{results['total_results']} Ergebnisse** gefunden in {results.get('search_time_ms', 0):.0f}ms")
-      def extract_gutachten_info(result: Dict) -> Dict[str, str]:
-        """Extrahiert Gutachten-Informationen aus API-Result"""
+    
+    def extract_gutachten_info(result: Dict) -> Dict[str, str]:
+        """Extrahiert Gutachten-Informationen aus API-Result mit verbesserter Fallback-Logik"""
         info = {}
         
         # Versuche Metadaten aus der API-Antwort zu extrahieren
         metadata = result.get("metadata", {})
+        content = result.get("content", "")
         
-        # 1. Gutachten-Nummer aus source_gutachten_id
-        source_id = metadata.get("source_gutachten_id", "")
+        # 1. Gutachten-Nummer - Versuche verschiedene Quellen
+        source_id = None
+        
+        # Primär: aus metadata
+        if metadata:
+            source_id = (metadata.get("source_gutachten_id") or 
+                        metadata.get("gutachten_id") or 
+                        metadata.get("document_id"))
+        
+        # Fallback: aus result direkt
+        if not source_id:
+            source_id = (result.get("source_gutachten_id") or 
+                        result.get("gutachten_id") or 
+                        result.get("document_id"))
+        
+        # Letzter Fallback: aus Content extrahieren
+        if not source_id and content:
+            lines = content.split('\n')
+            for line in lines[:10]:  # Erste 10 Zeilen durchsuchen
+                line_stripped = line.strip()
+                if "Gutachten" in line_stripped and any(c.isdigit() for c in line_stripped):
+                    # Versuche Nummer zu extrahieren
+                    import re
+                    match = re.search(r'(?:Gutachten|Nr\.?|#)\s*[:\-]?\s*(\d+)', line_stripped, re.IGNORECASE)
+                    if match:
+                        source_id = match.group(1)
+                        break
+        
         if source_id:
             info['gutachten_nummer'] = f"Gutachten Nr. {source_id}"
         else:
-            info['gutachten_nummer'] = "N/A"
+            info['gutachten_nummer'] = "Keine Gutachten-Nr. verfügbar"
         
-        # 2. Rechtsbezug - meist "National" bei DNOTI-Gutachten
-        info['rechtsbezug'] = "National"  # Default für DNOTI
+        # 2. Rechtsbezug
+        rechtsbezug = None
+        if metadata:
+            rechtsbezug = (metadata.get("rechtsbezug") or 
+                          metadata.get("jurisdiction") or 
+                          metadata.get("legal_jurisdiction"))
         
-        # 3. Normen aus legal_norms
-        legal_norms = metadata.get("legal_norms", [])
+        if not rechtsbezug:
+            rechtsbezug = result.get("rechtsbezug") or result.get("jurisdiction")
+        
+        info['rechtsbezug'] = rechtsbezug or "National (DNOTI)"
+        
+        # 3. Normen - Versuche verschiedene Quellen
+        legal_norms = None
+        
+        # Primär: aus metadata
+        if metadata:
+            legal_norms = (metadata.get("legal_norms") or 
+                          metadata.get("normen") or 
+                          metadata.get("laws"))
+        
+        # Fallback: aus result direkt
+        if not legal_norms:
+            legal_norms = (result.get("legal_norms") or 
+                          result.get("normen") or 
+                          result.get("laws"))
+        
+        # Verarbeite legal_norms
         if legal_norms and isinstance(legal_norms, list) and len(legal_norms) > 0:
-            info['normen'] = "; ".join(legal_norms[:5])  # Max 5 Normen anzeigen
-        else:
-            # Fallback: Versuche aus Content zu extrahieren (für alte Daten)
-            content = result.get("content", "")
-            lines = content.split('\n')
-            for line in lines[:10]:  # Erste 10 Zeilen durchsuchen
-                if line.startswith('Normen:'):
-                    normen = line.replace('Normen:', '').strip()
-                    info['normen'] = normen if normen else 'Keine spezifischen Normen angegeben'
-                    break
+            # Filtere leere/ungültige Einträge
+            valid_norms = [str(norm).strip() for norm in legal_norms if norm and str(norm).strip()]
+            if valid_norms:
+                info['normen'] = "; ".join(valid_norms[:5])  # Max 5 Normen
             else:
-                info['normen'] = 'Keine spezifischen Normen angegeben'
+                info['normen'] = "Keine gültigen Normen in Metadaten"
+        else:
+            # Fallback: aus Content extrahieren
+            if content:
+                lines = content.split('\n')
+                found_norms = []
+                
+                # Suche explizite Normen-Zeile
+                for line in lines[:15]:
+                    line_stripped = line.strip()
+                    if line_stripped.startswith('Normen:'):
+                        normen_text = line_stripped.replace('Normen:', '').strip()
+                        if normen_text and normen_text not in ['', '-', 'N/A']:
+                            found_norms.append(normen_text)
+                        break
+                
+                # Suche nach Rechtsnormen im Text (§ 123 BGB, Art. 456 GG, etc.)
+                if not found_norms:
+                    import re
+                    # Suche nach typischen deutschen Rechtsnormen
+                    norm_patterns = re.findall(r'[§Art\.]*\s*\d+[a-z]*\s+[A-Z]{2,4}', content[:2000], re.IGNORECASE)
+                    if norm_patterns:
+                        # Bereinige und dedupliziere
+                        cleaned_norms = list(set([norm.strip() for norm in norm_patterns if norm.strip()]))
+                        found_norms.extend(cleaned_norms[:3])  # Max 3 aus Content
+                
+                if found_norms:
+                    info['normen'] = "; ".join(found_norms)
+                else:
+                    info['normen'] = "Keine spezifischen Normen erkannt"
+            else:
+                info['normen'] = "Kein Content verfügbar"
         
         return info
       # Ergebnisse anzeigen
