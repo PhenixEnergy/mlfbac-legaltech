@@ -83,7 +83,8 @@ def check_api_connection() -> bool:
         return False
 
 def search_documents(query: str, top_k: int = 10, similarity_threshold: float = 0.0) -> List[Dict]:
-    """Search documents using the semantic search API."""
+    """Search documents using the semantic search API or direct ChromaDB access."""
+    # First try API
     try:
         payload = {
             "query": query,
@@ -99,11 +100,45 @@ def search_documents(query: str, top_k: int = 10, similarity_threshold: float = 
         
         if response.status_code == 200:
             return response.json().get("results", [])
-        else:
-            st.error(f"API Error: {response.status_code} - {response.text}")
-            return []
     except Exception as e:
-        st.error(f"Connection Error: {str(e)}")
+        st.warning(f"API nicht verfügbar, verwende direkten ChromaDB-Zugriff: {str(e)}")
+    
+    # Fallback to direct ChromaDB access
+    try:
+        import chromadb
+        from chromadb.utils import embedding_functions
+        
+        client = chromadb.PersistentClient(path="./chroma_db")
+        
+        # Use same embedding function as the system
+        embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
+            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        )
+        
+        collection = client.get_collection("legal_documents", embedding_function=embedding_fn)
+        
+        results = collection.query(
+            query_texts=[query],
+            n_results=top_k
+        )
+        
+        # Convert to expected format
+        formatted_results = []
+        if results['documents'] and results['documents'][0]:
+            for i, doc in enumerate(results['documents'][0]):
+                similarity = 1.0 - results['distances'][0][i] if results['distances'] and results['distances'][0] else 0.0
+                
+                if similarity >= similarity_threshold:
+                    formatted_results.append({
+                        'content': doc,
+                        'similarity': similarity,
+                        'metadata': results['metadatas'][0][i] if results['metadatas'] and results['metadatas'][0] else {}
+                    })
+        
+        return formatted_results
+        
+    except Exception as e:
+        st.error(f"Direkter Datenbankzugriff fehlgeschlagen: {str(e)}")
         return []
 
 def extract_gutachten_info(result: Dict) -> Dict[str, str]:
@@ -223,19 +258,19 @@ def main():
         <p>KI-gestützte semantische Suche für Rechtsgutachten</p>
     </div>
     """, unsafe_allow_html=True)
-    
-    # Sidebar
+      # Sidebar
     with st.sidebar:
         st.markdown("### 🔧 Sucheinstellungen")
         
         # Check API connection
         if check_api_connection():
             st.success("✅ API verfügbar")
+            api_mode = True
         else:
-            st.error("❌ API nicht verfügbar")
-            st.markdown("**Starten Sie zuerst das Backend:**")
+            st.warning("⚠️ API nicht verfügbar - Direkter Datenbankzugriff")
+            st.markdown("**Für beste Performance starten Sie das Backend:**")
             st.code("uvicorn src.api.main:app --reload")
-            return
+            api_mode = False
         
         # Search parameters
         top_k = st.slider("Anzahl Ergebnisse", 1, 20, 10)
@@ -244,17 +279,17 @@ def main():
             0.0, 1.0, 0.3, 0.1,
             help="Ergebnisse unter diesem Schwellenwert werden ausgeblendet"
         )
-        
-        # Database info
+          # Database info
         st.markdown("### 📊 Datenbank-Info")
         try:
             import chromadb
             client = chromadb.PersistentClient(path="./chroma_db")
-            collection = client.get_collection("dnoti_gutachten")
+            collection = client.get_collection("legal_documents")
             doc_count = collection.count()
             st.metric("Dokumente", doc_count)
-        except:
-            st.error("Datenbank nicht verfügbar")
+        except Exception as e:
+            st.error(f"Datenbank nicht verfügbar: {str(e)}")
+            st.info("Führen Sie zuerst 'python load_all_gutachten.py' aus")
     
     # Main search interface
     st.markdown('<div class="search-panel">', unsafe_allow_html=True)
