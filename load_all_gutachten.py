@@ -49,8 +49,7 @@ def load_all_gutachten():
         print(f"✅ Connected to ChromaDB at: {os.path.abspath(chroma_path)}")
     except Exception as e:
         print(f"❌ ChromaDB connection failed: {e}")
-        return False
-      # 4. Recreate collection (delete old and create new)
+        return False    # 4. Recreate collection (delete old and create new)
     print("🗑️ Removing old collection...")
     try:
         client.delete_collection("legal_documents")
@@ -60,11 +59,9 @@ def load_all_gutachten():
     
     print("📚 Creating new collection...")
     try:
-        # Use our custom embedding function that handles sentence_transformers properly
+        # Use our custom embedding function with IBM Granite model from config
         from src.vectordb.chroma_client import GraniteEmbeddingFunction
-        embedding_fn = GraniteEmbeddingFunction(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
-        )
+        embedding_fn = GraniteEmbeddingFunction()  # Uses config.EMBEDDING_MODEL by default
         
         collection = client.create_collection(
             name="legal_documents",
