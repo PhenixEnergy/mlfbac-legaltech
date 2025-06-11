@@ -9,7 +9,9 @@ import streamlit as st
 # Konfiguration importieren
 try:
     from src.config import config
-    API_BASE_URL = f"http://{config.API_HOST}:{config.API_PORT}"
+    # Use localhost for client connections even if server binds to 0.0.0.0
+    host = "localhost" if config.API_HOST == "0.0.0.0" else config.API_HOST
+    API_BASE_URL = f"http://{host}:{config.API_PORT}"
 except ImportError:
     # Fallback wenn Konfiguration nicht verfügbar
     API_BASE_URL = "http://localhost:8000"
