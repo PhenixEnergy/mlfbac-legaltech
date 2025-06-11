@@ -10,6 +10,9 @@ from abc import ABC, abstractmethod
 import logging
 from pathlib import Path
 
+# Import config for embedding model
+from ..config import config
+
 # Import yaml with fallback
 try:
     import yaml
@@ -286,16 +289,17 @@ class SemanticChunker(ChunkingStrategy):
         self.similarity_threshold = config.get('similarity_threshold', 0.7)
         self.min_chunk_size = config.get('min_chunk_size', 200)
         self.max_chunk_size = config.get('max_chunk_size', 1200)
-        
-        # Modelle laden
+          # Modelle laden
         self._load_models()
-        
+    
     def _load_models(self):
         """Lädt erforderliche ML-Modelle"""
         try:
+            # Import global config to avoid name collision
+            from ..config import config as global_config
             # Sentence Transformer für Embeddings
             embedding_model = self.config.get('sentence_splitter', {}).get(
-                'embedding_model', 'paraphrase-multilingual-MiniLM-L12-v2'
+                'embedding_model', global_config.EMBEDDING_MODEL
             )
             self.sentence_transformer = SentenceTransformer(embedding_model)
             
@@ -485,13 +489,13 @@ class QueryAdaptiveSelector:
         self.max_output_tokens = config.get('max_output_tokens', 1000)
         self.relevance_threshold = config.get('relevance_threshold', 0.6)
         self.diversity_factor = config.get('diversity_factor', 0.3)
-        
-        # Strategien konfigurieren
+          # Strategien konfigurieren
         self.strategies = config.get('strategies', {})
         
         # Sentence Transformer für Query-Embedding
         try:
-            self.sentence_transformer = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+            from ..config import config as global_config
+            self.sentence_transformer = SentenceTransformer(global_config.EMBEDDING_MODEL)
         except Exception as e:
             logger.error(f"Error loading sentence transformer: {e}")
             self.sentence_transformer = None
@@ -732,8 +736,7 @@ class HierarchicalChunker:
             processed_gutachten: Ergebnis von process_gutachten()
             
         Returns:
-            Liste der relevantesten Chunks
-        """
+            Liste der relevantesten Chunks        """
         level2_chunks = processed_gutachten.get('level_2_chunks', [])
         
         if not level2_chunks:
@@ -744,6 +747,7 @@ class HierarchicalChunker:
     
     def _get_default_config(self) -> Dict:
         """Standard-Konfiguration wenn keine Config-Datei vorhanden"""
+        from ..config import config as global_config
         return {
             'hierarchy': {
                 'enable': True,
@@ -767,7 +771,7 @@ class HierarchicalChunker:
                     'min_chunk_size': 200,
                     'max_chunk_size': 1200,
                     'sentence_splitter': {
-                        'embedding_model': 'paraphrase-multilingual-MiniLM-L12-v2'
+                        'embedding_model': global_config.EMBEDDING_MODEL
                     }
                 },
                 'level_3': {

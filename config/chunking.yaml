@@ -25,12 +25,11 @@ hierarchy:
     similarity_threshold: 0.7
     min_chunk_size: 200
     max_chunk_size: 1200
-    
-    # Semantic Chunking Parameter
+      # Semantic Chunking Parameter
     sentence_splitter:
       model: "de_core_news_sm"  # spaCy German model
       use_embeddings: true
-      embedding_model: "paraphrase-multilingual-MiniLM-L12-v2"
+      embedding_model: "ibm-granite/granite-embedding-278m-multilingual"
       
     # Überlappungs-Strategie
     overlap_strategy:

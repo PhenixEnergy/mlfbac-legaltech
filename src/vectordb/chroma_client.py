@@ -93,7 +93,10 @@ class GraniteEmbeddingFunction:
     Wrapper um sentence-transformers für Chroma-Kompatibilität
     """
     
-    def __init__(self, model_name: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"):
+    def __init__(self, model_name: str = None):
+        # Use config.EMBEDDING_MODEL if no model_name is provided
+        if model_name is None:
+            model_name = config.EMBEDDING_MODEL
         self.model_name = model_name
         self.model = None  # Lazy loading
         logger.info(f"Initialized embedding function with model: {model_name}")
@@ -244,9 +247,13 @@ class ChromaDBClient:
     def _init_embedding_function(self):
         """Initialisiert Embedding-Funktion"""
         try:
-            model_name = self.config.get('embedding', {}).get('model', 
-                'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
-            self.embedding_function = GraniteEmbeddingFunction(model_name)
+            # Use embedding model from config or let GraniteEmbeddingFunction use its default from config.EMBEDDING_MODEL
+            model_name = self.config.get('embedding', {}).get('model')
+            if model_name:
+                self.embedding_function = GraniteEmbeddingFunction(model_name)
+            else:
+                # Use default from config.EMBEDDING_MODEL
+                self.embedding_function = GraniteEmbeddingFunction()
             logger.info("Embedding function initialized")
         except Exception as e:
             logger.error(f"Failed to initialize embedding function: {e}")

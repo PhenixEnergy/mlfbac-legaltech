@@ -226,8 +226,7 @@ class SemanticSearchEngine:
     - ChromaDB für Vektorsuche
     - Hierarchical Chunking für Datenorganisation
     - Query Processing für optimierte Anfragen
-    - Ranking-Algorithmen für beste Ergebnisse
-    """
+    - Ranking-Algorithmen für beste Ergebnisse    """
     
     def __init__(self, 
                  vectordb_client: ChromaDBClient,
@@ -243,8 +242,8 @@ class SemanticSearchEngine:
         self.chunker = chunker
         self.query_processor = QueryProcessor()
         
-        # Standard Collection Name
-        self.default_collection = "dnoti_legal_documents"
+        # Standard Collection Name - nutze die größte Collection mit 3,936 Gutachten
+        self.default_collection = "legal_documents"
         
         logger.info("Semantic Search Engine initialized")
     
