@@ -40,7 +40,7 @@ def get_database_client() -> ChromaDBClient:
     Singleton ChromaDB Client
     """
     try:
-        client = ChromaDBClient(config_path=DB_CONFIG_PATH)
+        client = ChromaDBClient()  # Remove config_path parameter
         logger.info("ChromaDB client initialized")
         return client
     except Exception as e:

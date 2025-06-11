@@ -240,10 +240,8 @@ class SemanticSearchEngine:
         """
         self.vectordb = vectordb_client
         self.chunker = chunker
-        self.query_processor = QueryProcessor()
-        
-        # Standard Collection Name - nutze die größte Collection mit 3,936 Gutachten
-        self.default_collection = "legal_documents"
+        self.query_processor = QueryProcessor()        # Standard Collection Name - nutze legal_documents mit IBM Granite für beste Qualität
+        self.default_collection = "legal_documents"  # 275 docs, 768 dimensions, IBM Granite compatible
         
         logger.info("Semantic Search Engine initialized")
     
