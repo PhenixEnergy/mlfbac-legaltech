@@ -29,8 +29,7 @@ def load_all_gutachten():
         data = json.load(f)
     
     print(f"✅ Loaded {len(data)} Gutachten from JSON")
-    
-    # 2. Import ChromaDB
+      # 2. Import ChromaDB
     try:
         import chromadb
         from chromadb.utils import embedding_functions
@@ -38,7 +37,8 @@ def load_all_gutachten():
     except ImportError as e:
         print(f"❌ ChromaDB import failed: {e}")
         return False
-      # 3. Create ChromaDB client
+    
+    # 3. Create ChromaDB client
     print("💾 Connecting to ChromaDB...")
     try:
         # Verwende neue Konfiguration
@@ -49,7 +49,9 @@ def load_all_gutachten():
         print(f"✅ Connected to ChromaDB at: {os.path.abspath(chroma_path)}")
     except Exception as e:
         print(f"❌ ChromaDB connection failed: {e}")
-        return False    # 4. Recreate collection (delete old and create new)
+        return False
+    
+    # 4. Recreate collection (delete old and create new)
     print("🗑️ Removing old collection...")
     try:
         client.delete_collection("legal_documents")
@@ -65,9 +67,12 @@ def load_all_gutachten():
         
         collection = client.create_collection(
             name="legal_documents",
-            embedding_function=embedding_fn
+            embedding_function=embedding_fn,
+            metadata={
+                "hnsw:space": "cosine"  # Use cosine similarity instead of L2
+            }
         )
-        print("✅ New collection 'legal_documents' created")
+        print("✅ New collection 'legal_documents' created with cosine similarity")
     except Exception as e:
         print(f"❌ Collection creation failed: {e}")
         return False

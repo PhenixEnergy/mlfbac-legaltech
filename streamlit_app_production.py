@@ -104,14 +104,18 @@ def search_documents(query: str, top_k: int = 10, similarity_threshold: float = 
         st.warning(f"API nicht verfügbar, verwende direkten ChromaDB-Zugriff: {str(e)}")    # Fallback to direct ChromaDB access
     try:
         import chromadb
-        from chromadb.utils import embedding_functions
+        import sys
+        import os
+        
+        # Add src to path for imports
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+        
+        from src.vectordb.chroma_client import GraniteEmbeddingFunction
         
         client = chromadb.PersistentClient(path="./data/vectordb")
         
-        # Use IBM Granite model for legal_documents collection (768 dimensions)
-        embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-            model_name="ibm-granite/granite-embedding-278m-multilingual"
-        )
+        # Use the same IBM Granite model that was used to create the collection
+        embedding_fn = GraniteEmbeddingFunction()
         
         collection = client.get_collection("legal_documents", embedding_function=embedding_fn)
         
