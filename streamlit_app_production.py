@@ -101,18 +101,16 @@ def search_documents(query: str, top_k: int = 10, similarity_threshold: float = 
         if response.status_code == 200:
             return response.json().get("results", [])
     except Exception as e:
-        st.warning(f"API nicht verfügbar, verwende direkten ChromaDB-Zugriff: {str(e)}")
-    
-    # Fallback to direct ChromaDB access
+        st.warning(f"API nicht verfügbar, verwende direkten ChromaDB-Zugriff: {str(e)}")    # Fallback to direct ChromaDB access
     try:
         import chromadb
         from chromadb.utils import embedding_functions
         
-        client = chromadb.PersistentClient(path="./chroma_db")
+        client = chromadb.PersistentClient(path="./data/vectordb")
         
-        # Use same embedding function as the system
+        # Use IBM Granite model for legal_documents collection (768 dimensions)
         embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
+            model_name="ibm-granite/granite-embedding-278m-multilingual"
         )
         
         collection = client.get_collection("legal_documents", embedding_function=embedding_fn)
@@ -278,12 +276,11 @@ def main():
             "Mindest-Ähnlichkeit", 
             0.0, 1.0, 0.3, 0.1,
             help="Ergebnisse unter diesem Schwellenwert werden ausgeblendet"
-        )
-          # Database info
+        )        # Database info
         st.markdown("### 📊 Datenbank-Info")
         try:
             import chromadb
-            client = chromadb.PersistentClient(path="./chroma_db")
+            client = chromadb.PersistentClient(path="./data/vectordb")
             collection = client.get_collection("legal_documents")
             doc_count = collection.count()
             st.metric("Dokumente", doc_count)
