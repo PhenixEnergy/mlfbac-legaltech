@@ -1131,34 +1131,36 @@ def render_search_results(results: Dict):
                 with st.expander("Detaillierte Metadaten"):
                     # Strukturierte Anzeige der wichtigsten Metadaten
                     col1, col2 = st.columns(2)
-                    
                     with col1:
                         st.write("**Chunk-Informationen:**")
                         st.write(f"• Chunk-ID: `{api_metadata.get('chunk_id', 'N/A')}`")
                         st.write(f"• Abschnittstyp: {api_metadata.get('section_type', 'N/A')}")
                         st.write(f"• Token-Anzahl: {api_metadata.get('token_count', 'N/A')}")
-                        
                     with col2:
                         st.write("**Bewertungen:**")
                         st.write(f"• Ähnlichkeit: {api_metadata.get('semantic_score', result.get('similarity_score', 0)):.3f}")
                         st.write(f"• Relevanz: {api_metadata.get('relevance_score', 0):.3f}")
-                    
                     # Keywords anzeigen
                     keywords = api_metadata.get('keywords', [])
                     if keywords:
                         st.write("**Schlüsselwörter:**")
                         st.write(", ".join(keywords[:10]))  # Erste 10 Keywords
-                    
                     # Legal Norms anzeigen
                     legal_norms = api_metadata.get('legal_norms', [])
                     if legal_norms:
                         st.write("**Rechtsnormen:**")
                         st.write(", ".join(legal_norms))
-                
-                # Vollständige Metadaten als JSON (außerhalb des Expanders)
-                if st.button(f"Vollständige Metadaten anzeigen", key=f"metadata_{result.get('id', hash(str(result)))}"):
+                # Toggle für vollständige Metadaten
+                meta_key = f"metadata_toggle_{result.get('id', hash(str(result)))}"
+                meta_state_key = f"{meta_key}_state"
+                if meta_state_key not in st.session_state:
+                    st.session_state[meta_state_key] = False
+                button_label = "Vollständige Metadaten anzeigen" if not st.session_state[meta_state_key] else "Vollständige Metadaten ausblenden"
+                if st.button(button_label, key=meta_key):
+                    st.session_state[meta_state_key] = not st.session_state[meta_state_key]
+                    st.rerun()
+                if st.session_state[meta_state_key]:
                     st.json(api_metadata)
-            
             st.divider()
 
 def ask_question(question: str, context_limit: int = 5) -> Dict:
@@ -1213,7 +1215,7 @@ def render_hero_section():
     st.markdown("""
     <div class="hero-container">
         <h1 class="hero-title">Legal Tech AI Search</h1>
-        <p class="hero-subtitle">Intelligente Rechtsgutachten-Analyse mit modernster KI-Technologie</p>
+        <p class="hero-subtitle">Intelligente Rechtsgutachten-Analyse mit KI</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1229,7 +1231,6 @@ def render_search_page():
         query = st.text_input(
             "Suchbegriff",
             placeholder="z.B. Schadensersatz, Haftung, Vertragsrecht...",
-            help="Geben Sie einen Suchbegriff oder eine Frage ein",
             value=st.session_state.search_query,
             key="search_input"
         )
@@ -1396,7 +1397,6 @@ def main():
         st.markdown("### Links")
         st.markdown("""
         - <a href="https://github.com/PhenixEnergy/mlfbac-legaltech#" class="sidebar-link">Dokumentation</a>
-        - <a href="mailto:support@legal.ai" class="sidebar-link">Support</a>
         """, unsafe_allow_html=True)
     
     # Seiten-Routing
